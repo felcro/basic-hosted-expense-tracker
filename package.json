@@ -1,0 +1,44 @@
+{
+  "name": "basic-hosted-expense-tracker",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "catalog": {
+      "react": "19.2.3",
+      "react-dom": "19.2.3",
+      "react-native": "0.86.2",
+      "react-native-web": "^0.21.2",
+      "typescript": "~6.0.3"
+    }
+  },
+  "type": "module",
+  "module": "index.ts",
+  "scripts": {
+    "fmt": "oxfmt",
+    "lint": "oxfmt && oxlint",
+    "lint:fix": "oxfmt && oxlint --fix",
+    "app": "bun run --filter '*' start",
+    "android": "bun run --filter '*' android",
+    "ios": "bun run --filter '*' ios",
+    "web": "bun run --filter '*' web",
+    "server": "bun run --filter '*' server",
+    "dev": "bun run --filter '*' devserver"
+  },
+  "devDependencies": {
+    "@nkzw/eslint-plugin": "^2.0.0",
+    "@nkzw/oxlint-config": "^1.2.1",
+    "@types/bun": "latest",
+    "eslint-plugin-no-only-tests": "^3.4.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "oxfmt": "^0.64.0",
+    "oxlint": "^1.79.0",
+    "oxlint-tsgolint": "^7.0.2001"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  }
+}

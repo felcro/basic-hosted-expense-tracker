@@ -1,0 +1,21 @@
+{
+  "name": "@basic-hosted-expense-tracker/server",
+  "private": true,
+  "type": "module",
+  "module": "index.ts",
+  "scripts": {
+    "server": "bun index.ts",
+    "devserver": "bun --watch index.ts"
+  },
+  "dependencies": {
+    "@basic-hosted-expense-tracker/shared": "workspace:^",
+    "@hono/zod-validator": "^0.9.0",
+    "hono": "^4.13.3"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "catalog:"
+  }
+}
