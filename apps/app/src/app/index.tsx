@@ -1,6 +1,7 @@
 import { useState } from 'react'
 // import { StatusBar } from 'expo-status-bar'
-import { Button, View } from 'react-native'
+import { View } from 'react-native'
+import { Button } from 'react-native-paper'
 import { StyleSheet } from 'react-native-unistyles'
 
 import { Text } from '../components/Text'
@@ -13,8 +14,8 @@ export default function Home() {
       <Text variant="title">Home</Text>
       {/* <StatusBar style="auto" /> */}
       <Text>{count}</Text>
-      <Button title="up" onPress={() => setCount((count) => count + 1)} />
-      <Button title="down" onPress={() => setCount((count) => count - 1)} />
+      <Button onPress={() => setCount((count) => count + 1)}>Up</Button>
+      <Button onPress={() => setCount((count) => count - 1)}>Down</Button>
     </View>
   )
 }

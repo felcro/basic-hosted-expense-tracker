@@ -1,17 +1,20 @@
 import { Stack } from 'expo-router'
 // import { StyleSheet } from 'react-native-unistyles'
+import { PaperProvider } from 'react-native-paper'
 
 export default function RootLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: '#ddd' },
-        headerTintColor: '#333',
-      }}
-    >
-      <Stack.Screen name="index" options={{ title: 'Home' }} />
-      <Stack.Screen name="about" options={{ title: 'About' }} />
-    </Stack>
+    <PaperProvider>
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: '#ddd' },
+          headerTintColor: '#333',
+        }}
+      >
+        <Stack.Screen name="index" options={{ title: 'Home' }} />
+        <Stack.Screen name="about" options={{ title: 'About' }} />
+      </Stack>
+    </PaperProvider>
   )
 }
 
