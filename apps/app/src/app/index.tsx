@@ -1,21 +1,54 @@
+import { Link } from 'expo-router'
 import { useState } from 'react'
 // import { StatusBar } from 'expo-status-bar'
 import { View } from 'react-native'
-import { Button } from 'react-native-paper'
-import { StyleSheet } from 'react-native-unistyles'
-
-import { Text } from '../components/Text'
+import { Avatar, Button, Card, Switch, Text } from 'react-native-paper'
+import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles'
 
 export default function Home() {
-  const [count, setCount] = useState<number>(0)
+  const [totalSpent, setTotalSpent] = useState<number>(0)
+  const [themeToggle, setThemeToggle] = useState(false)
 
   return (
     <View style={styles.container}>
-      <Text variant="title">Home</Text>
-      {/* <StatusBar style="auto" /> */}
-      <Text>{count}</Text>
-      <Button onPress={() => setCount((count) => count + 1)}>Up</Button>
-      <Button onPress={() => setCount((count) => count - 1)}>Down</Button>
+      <Switch
+        value={themeToggle}
+        onValueChange={() => {
+          setThemeToggle(!themeToggle)
+          UnistylesRuntime.setTheme(themeToggle ? 'light' : 'dark')
+        }}
+      />
+      <Text variant="headlineLarge">Home</Text>
+      <Card>
+        <Card.Title
+          title="Total Spent"
+          subtitle="The total amount you've spent"
+          left={(props) => <Avatar.Icon {...props} icon="folder" />}
+        />
+        <Card.Content>
+          <Text>{totalSpent}</Text>
+        </Card.Content>
+        <Card.Actions>
+          <Button
+            icon="arrow-down-thin"
+            onPress={() => setTotalSpent((totalSpent) => totalSpent - 1)}
+          >
+            Down
+          </Button>
+          <Button
+            icon="arrow-up-thin"
+            onPress={() => setTotalSpent((totalSpent) => totalSpent + 1)}
+          >
+            Up
+          </Button>
+        </Card.Actions>
+      </Card>
+      <Text>
+        <Link href="/about">About Page</Link>
+      </Text>
+      <Text>
+        <Link href="/contact">Contact Page</Link>
+      </Text>
     </View>
   )
 }

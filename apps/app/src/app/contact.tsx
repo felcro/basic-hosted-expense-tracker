@@ -6,7 +6,7 @@ import { StyleSheet } from 'react-native-unistyles'
 export default function About() {
   return (
     <View style={styles.container}>
-      <Text>About</Text>
+      <Text>Contact</Text>
       <Link href="/">
         <Text numberOfLines={1}>Home Page</Text>
       </Link>

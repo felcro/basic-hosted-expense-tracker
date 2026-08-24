@@ -1,28 +1,25 @@
 import { Stack } from 'expo-router'
-// import { StyleSheet } from 'react-native-unistyles'
 import { PaperProvider } from 'react-native-paper'
+import { useUnistyles } from 'react-native-unistyles'
+
+import { paperDarkTheme, paperLightTheme } from '../theme/paperTheme'
 
 export default function RootLayout() {
+  const { theme, rt } = useUnistyles()
+  const paperTheme = rt.themeName === 'dark' ? paperDarkTheme : paperLightTheme
+
   return (
-    <PaperProvider>
+    <PaperProvider theme={paperTheme}>
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: '#ddd' },
-          headerTintColor: '#333',
+          headerStyle: { backgroundColor: theme.colors.foreground },
+          headerTintColor: theme.colors.typography,
         }}
       >
         <Stack.Screen name="index" options={{ title: 'Home' }} />
         <Stack.Screen name="about" options={{ title: 'About' }} />
+        <Stack.Screen name="contact" options={{ title: 'Contact' }} />
       </Stack>
     </PaperProvider>
   )
 }
-
-// const styles = StyleSheet.create((theme) => ({
-//   rootLayout: {
-//     alignItems: 'center',
-//     backgroundColor: theme.colors.background,
-//     flex: 1,
-//     justifyContent: 'center',
-//   },
-// }))
