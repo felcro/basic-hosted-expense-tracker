@@ -9,7 +9,8 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web --clear"
+    "web": "expo start --web --clear",
+    "lint": "expo lint"
   },
   "dependencies": {
     "@basic-hosted-expense-tracker/shared": "workspace:^",
@@ -36,6 +37,8 @@
   "devDependencies": {
     "@types/react": "~19.2.4",
     "babel-preset-expo": "~57.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~57.0.1",
     "typescript": "~6.0.3"
   }
 }

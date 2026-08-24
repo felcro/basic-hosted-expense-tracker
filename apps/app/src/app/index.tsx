@@ -1,13 +1,30 @@
 import { Link } from 'expo-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 // import { StatusBar } from 'expo-status-bar'
 import { View } from 'react-native'
 import { Avatar, Button, Card, Switch, Text } from 'react-native-paper'
-import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles'
+import {
+  StyleSheet,
+  UnistylesRuntime,
+  withUnistyles,
+} from 'react-native-unistyles'
+
+const CardContent = withUnistyles(Card.Content)
 
 export default function Home() {
   const [totalSpent, setTotalSpent] = useState<number>(0)
   const [themeToggle, setThemeToggle] = useState(false)
+
+  useEffect(() => {
+    async function fetchTotal() {
+      const res = await fetch(
+        `${process.env['EXPO_PUBLIC_API_URL'] ?? ''}/api/expenses/total-spent`,
+      )
+      const data = await res.json()
+      setTotalSpent(data.total)
+    }
+    fetchTotal()
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -21,27 +38,14 @@ export default function Home() {
       <Text variant="headlineLarge">Home</Text>
       <Card>
         <Card.Title
+          titleVariant="titleLarge"
           title="Total Spent"
           subtitle="The total amount you've spent"
-          left={(props) => <Avatar.Icon {...props} icon="folder" />}
+          subtitleVariant="bodyMedium"
         />
-        <Card.Content>
-          <Text>{totalSpent}</Text>
-        </Card.Content>
-        <Card.Actions>
-          <Button
-            icon="arrow-down-thin"
-            onPress={() => setTotalSpent((totalSpent) => totalSpent - 1)}
-          >
-            Down
-          </Button>
-          <Button
-            icon="arrow-up-thin"
-            onPress={() => setTotalSpent((totalSpent) => totalSpent + 1)}
-          >
-            Up
-          </Button>
-        </Card.Actions>
+        <CardContent style={styles.cardContent}>
+          <Text variant="bodyLarge">{totalSpent}</Text>
+        </CardContent>
       </Card>
       <Text>
         <Link href="/about">About Page</Link>
@@ -60,5 +64,8 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
+  },
+  cardContent: {
+    marginTop: 10,
   },
 }))

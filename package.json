@@ -18,6 +18,8 @@
   "type": "module",
   "module": "index.ts",
   "scripts": {
+    "build:web": "cd apps/app && bunx expo export -p web",
+    "start": "bun apps/server/index.ts",
     "fmt": "oxfmt",
     "lint": "oxfmt && oxlint",
     "lint:fix": "oxfmt && oxlint --fix",

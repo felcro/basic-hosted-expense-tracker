@@ -4,7 +4,10 @@ import { darkTheme, lightTheme } from './unistyles'
 
 // Builds a Paper MD3 theme from a Unistyles theme. Spreading `base` first means
 // any Paper color/property we don't set here keeps Paper's own default.
-function toPaperTheme(base: MD3Theme, theme: typeof lightTheme | typeof darkTheme): MD3Theme {
+function toPaperTheme(
+  base: MD3Theme,
+  theme: typeof lightTheme | typeof darkTheme,
+): MD3Theme {
   return {
     ...base,
     roundness: theme.roundness,
