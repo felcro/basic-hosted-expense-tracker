@@ -3,27 +3,38 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "exports": {
-    "./routes": "./index.ts"
-  },
+  "main": "index.ts",
   "scripts": {
+    "prebuild": "expo prebuild --clean",
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web --clear"
   },
   "dependencies": {
-    "@expo/metro-runtime": "^57.0.12",
-    "expo": "~57.0.15",
+    "@basic-hosted-expense-tracker/shared": "workspace:^",
+    "@expo/metro-runtime": "~57.0.13",
+    "@expo/ui": "~57.0.13",
+    "add": "^2.0.9",
+    "expo": "~57.0.16",
+    "expo-constants": "~57.0.14",
+    "expo-font": "^57.0.1",
+    "expo-linking": "~57.0.7",
+    "expo-router": "~57.0.16",
     "expo-status-bar": "~57.0.1",
-    "react": "catalog:",
+    "react": "19.2.3",
     "react-dom": "catalog:",
-    "react-native": "catalog:",
-    "react-native-web": "catalog:",
-    "@basic-hosted-expense-tracker/shared": "workspace:^"
+    "react-native": "0.86.2",
+    "react-native-nitro-modules": "^0.37.0",
+    "react-native-reanimated": "^4.6.0",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-unistyles": "^3.3.0",
+    "react-native-web": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "~19.2.18",
-    "typescript": "catalog:"
+    "@types/react": "~19.2.4",
+    "babel-preset-expo": "~57.0.0",
+    "typescript": "~6.0.3"
   }
 }

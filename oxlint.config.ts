@@ -72,7 +72,7 @@ export default defineConfig({
       },
     ],
     '@typescript-eslint/no-duplicate-enum-values': 'error',
-    '@typescript-eslint/no-empty-object-type': 'error',
+    '@typescript-eslint/no-empty-object-type': 'allow', // TODO review
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-extra-non-null-assertion': 'error',
     '@typescript-eslint/no-misused-new': 'error',

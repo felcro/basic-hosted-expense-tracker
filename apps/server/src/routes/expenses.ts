@@ -1,7 +1,9 @@
-import { type Expense, expenseSchema } from '@basic-hosted-expense-tracker/shared'
+import {
+  type Expense,
+  expenseSchema,
+} from '@basic-hosted-expense-tracker/shared'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
-
 
 const fakeExpenses: Array<Expense> = [
   { id: 1, title: 'Groceries', amount: 50 },
@@ -9,7 +11,7 @@ const fakeExpenses: Array<Expense> = [
   { id: 3, title: 'Rent', amount: 1000 },
 ]
 
-const createPostSchema = expenseSchema.omit({ id: true})
+const createPostSchema = expenseSchema.omit({ id: true })
 
 export const expensesRoute = new Hono()
   .get('/', (c) => {
