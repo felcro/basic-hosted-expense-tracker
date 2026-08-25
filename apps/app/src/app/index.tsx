@@ -1,5 +1,6 @@
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 // import { StatusBar } from 'expo-status-bar'
 import { View } from 'react-native'
 import { Card, Switch, Text } from 'react-native-paper'
@@ -11,21 +12,28 @@ import {
 
 import { api } from '../lib/api'
 
+async function getTotalSpent() {
+  const res = await api.expenses['total-spent'].$get()
+  if (!res.ok) {
+    throw new Error('server error')
+  }
+  const data = await res.json()
+  return data
+}
+
 const CardContent = withUnistyles(Card.Content)
 
 export default function Home() {
-  const [totalSpent, setTotalSpent] = useState<number>(0)
   const [themeToggle, setThemeToggle] = useState(false)
 
-  useEffect(() => {
-    async function fetchTotal() {
-      const res = await api.expenses['total-spent'].$get()
-      console.log('RES: ', res)
-      const data = await res.json()
-      setTotalSpent(data.total)
-    }
-    fetchTotal()
-  }, [])
+  const { isPending, error, data, isFetching } = useQuery({
+    queryKey: ['get-total-spent'],
+    queryFn: getTotalSpent,
+  })
+
+  if (error) {
+    return 'An error has occurred: ' + error.message
+  }
 
   return (
     <View style={styles.container}>
@@ -45,7 +53,7 @@ export default function Home() {
           subtitleVariant="bodyMedium"
         />
         <CardContent style={styles.cardContent}>
-          <Text variant="bodyLarge">{totalSpent}</Text>
+          <Text variant="bodyLarge">{isPending ? '...' : data.total}</Text>
         </CardContent>
       </Card>
       <Text>

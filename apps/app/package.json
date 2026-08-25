@@ -17,6 +17,7 @@
     "@basic-hosted-expense-tracker/shared": "workspace:^",
     "@expo/metro-runtime": "~57.0.13",
     "@react-native-vector-icons/material-design-icons": "^13.1.3",
+    "@tanstack/react-query": "^5.102.3",
     "add": "^2.0.9",
     "expo": "~57.0.16",
     "expo-constants": "~57.0.14",
