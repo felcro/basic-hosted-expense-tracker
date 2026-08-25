@@ -3,13 +3,10 @@ import { Link } from 'expo-router'
 import { useState } from 'react'
 // import { StatusBar } from 'expo-status-bar'
 import { View } from 'react-native'
-import { Card, Switch, Text } from 'react-native-paper'
-import {
-  StyleSheet,
-  UnistylesRuntime,
-  withUnistyles,
-} from 'react-native-unistyles'
+import { Switch, Text } from 'react-native-paper'
+import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles'
 
+import { Card, CardContent, CardTitle } from '../components/rnp-unistyles/Card'
 import { api } from '../lib/api'
 
 async function getTotalSpent() {
@@ -21,12 +18,10 @@ async function getTotalSpent() {
   return data
 }
 
-const CardContent = withUnistyles(Card.Content)
-
 export default function Home() {
   const [themeToggle, setThemeToggle] = useState(false)
 
-  const { isPending, error, data, isFetching } = useQuery({
+  const { isPending, error, data } = useQuery({
     queryKey: ['get-total-spent'],
     queryFn: getTotalSpent,
   })
@@ -46,7 +41,7 @@ export default function Home() {
       />
       <Text variant="headlineLarge">Home</Text>
       <Card>
-        <Card.Title
+        <CardTitle
           titleVariant="titleLarge"
           title="Total Spent"
           subtitle="The total amount you've spent"
