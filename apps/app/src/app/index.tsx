@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'expo-router'
 import { useState } from 'react'
 // import { StatusBar } from 'expo-status-bar'
 import { View } from 'react-native'
@@ -51,12 +50,6 @@ export default function Home() {
           <Text variant="bodyLarge">{isPending ? '...' : data.total}</Text>
         </CardContent>
       </Card>
-      <Text>
-        <Link href="/about">About Page</Link>
-      </Text>
-      <Text>
-        <Link href="/contact">Contact Page</Link>
-      </Text>
     </View>
   )
 }

@@ -4,8 +4,9 @@ import { StrictMode } from 'react'
 import { PaperProvider } from 'react-native-paper'
 import { StyleSheet, useUnistyles } from 'react-native-unistyles'
 
-import { NativeHeader } from '../components/NativeHeader'
-import { TabButton } from '../components/TabButton'
+import { NativeHeader } from '../components//native/NativeHeader'
+import { TabButton } from '../components/common/TabButton'
+import { routes } from '../lib/routes'
 import { paperDarkTheme, paperLightTheme } from '../theme/paperTheme'
 
 export default function RootLayout() {
@@ -23,14 +24,33 @@ export default function RootLayout() {
           <Tabs style={styles.tabs}>
             <TabSlot />
             <TabList style={styles.tabList}>
-              <TabTrigger name="index" href="/" asChild>
-                <TabButton label="Home" />
+              <TabTrigger
+                name={routes.home.name}
+                href={routes.home.href}
+                asChild
+              >
+                <TabButton label={routes.home.label} />
               </TabTrigger>
-              <TabTrigger name="about" href="/about" asChild>
-                <TabButton label="About" />
+              <TabTrigger
+                name={routes.about.name}
+                href={routes.about.href}
+                asChild
+              >
+                <TabButton label={routes.about.label} />
               </TabTrigger>
-              <TabTrigger name="contact" href="/contact" asChild>
-                <TabButton label="Contact" />
+              <TabTrigger
+                name={routes.expenses.name}
+                href={routes.expenses.href}
+                asChild
+              >
+                <TabButton label={routes.expenses.label} />
+              </TabTrigger>
+              <TabTrigger
+                name={routes['create-expense'].name}
+                href={routes['create-expense'].href}
+                asChild
+              >
+                <TabButton label={routes['create-expense'].label} />
               </TabTrigger>
             </TabList>
           </Tabs>

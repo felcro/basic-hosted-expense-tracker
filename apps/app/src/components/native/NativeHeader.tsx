@@ -1,7 +1,11 @@
 import { router } from 'expo-router'
 import { StyleSheet } from 'react-native-unistyles'
 
-import { Appbar, AppbarBackAction, AppbarContent } from './rnp-unistyles/Appbar'
+import {
+  Appbar,
+  AppbarBackAction,
+  AppbarContent,
+} from '../rnp-unistyles/Appbar'
 
 type NativeHeaderProps = {
   title: string
