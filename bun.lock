@@ -23,6 +23,7 @@
       "name": "@basic-hosted-expense-tracker/app",
       "version": "1.0.0",
       "dependencies": {
+        "@basic-hosted-expense-tracker/server": "workspace:^",
         "@basic-hosted-expense-tracker/shared": "workspace:^",
         "@expo/metro-runtime": "~57.0.13",
         "@react-native-vector-icons/material-design-icons": "^13.1.3",
@@ -33,6 +34,7 @@
         "expo-linking": "~57.0.7",
         "expo-router": "~57.0.16",
         "expo-status-bar": "~57.0.1",
+        "hono": "^4.13.4",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "react-native": "0.86.2",
@@ -1068,7 +1070,7 @@
 
     "hoist-non-react-statics": ["hoist-non-react-statics@3.3.2", "", { "dependencies": { "react-is": "^16.7.0" } }, "sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw=="],
 
-    "hono": ["hono@4.13.3", "", {}, "sha512-r8AO2mYHoLxSHkgafNeC/BXyb2vWRxD3jem4Ts+ptav8oTG5FIRifAjuJEmZI4bSvvc2ns0GxmIYiZnHqN3mMw=="],
+    "hono": ["hono@4.13.4", "", {}, "sha512-AGEwKIyRMHRv1t8Wjwa3LHxQ61X5CqrdFT+4BRNTpqS5aJNnpl5WLjADb7vFlJzI/8uK7T5QLVApCMQKNa3LgQ=="],
 
     "hosted-git-info": ["hosted-git-info@7.0.2", "", { "dependencies": { "lru-cache": "^10.0.1" } }, "sha512-puUZAUKT5m8Zzvs72XWy3HtvVbTWljRE66cP60bxJzAqf2DgICo7lYTY2IHUmLnNpjYvw5bvmoHvPc0QO2a62w=="],
 

@@ -4,8 +4,8 @@
   "type": "module",
   "module": "index.ts",
   "scripts": {
-    "server": "bun index.ts",
-    "devserver": "bun --watch index.ts"
+    "server": "bun serve.ts",
+    "devserver": "bun --watch serve.ts"
   },
   "dependencies": {
     "@basic-hosted-expense-tracker/shared": "workspace:^",

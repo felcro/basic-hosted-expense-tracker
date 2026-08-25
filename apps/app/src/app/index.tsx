@@ -2,12 +2,14 @@ import { Link } from 'expo-router'
 import { useEffect, useState } from 'react'
 // import { StatusBar } from 'expo-status-bar'
 import { View } from 'react-native'
-import { Avatar, Button, Card, Switch, Text } from 'react-native-paper'
+import { Card, Switch, Text } from 'react-native-paper'
 import {
   StyleSheet,
   UnistylesRuntime,
   withUnistyles,
 } from 'react-native-unistyles'
+
+import { api } from '../lib/api'
 
 const CardContent = withUnistyles(Card.Content)
 
@@ -17,9 +19,8 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchTotal() {
-      const res = await fetch(
-        `${process.env['EXPO_PUBLIC_API_URL'] ?? ''}/api/expenses/total-spent`,
-      )
+      const res = await api.expenses['total-spent'].$get()
+      console.log('RES: ', res)
       const data = await res.json()
       setTotalSpent(data.total)
     }
