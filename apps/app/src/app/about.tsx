@@ -1,14 +1,11 @@
-import { Link } from 'expo-router'
-import { Text } from 'react-native-paper'
-
 import { BaseView } from '../components/common/BaseView'
+import { LinkText } from '../components/common/Text'
+import { routes } from '../lib/routes'
 
 export default function About() {
   return (
     <BaseView title="About">
-      <Link href="/">
-        <Text numberOfLines={1}>Home Page</Text>
-      </Link>
+      <LinkText href={routes.home.href} label="Home Page" />
     </BaseView>
   )
 }
