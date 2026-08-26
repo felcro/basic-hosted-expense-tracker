@@ -3,6 +3,7 @@ import { View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { StyleSheet } from 'react-native-unistyles'
 
+import { Table } from '../components/common/Table'
 import { api } from '../lib/api'
 
 const styles = StyleSheet.create((theme) => ({
@@ -10,11 +11,11 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  container: {
+  pageContent: {
     alignItems: 'center',
     backgroundColor: theme.colors.background,
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     minWidth: '100%',
   },
   title: {
@@ -23,6 +24,15 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.gap(2),
   },
 }))
+
+async function getColumnNames() {
+  const res = await api.expenses.columns.$get()
+  if (!res.ok) {
+    throw new Error('server error')
+  }
+  const data = await res.json()
+  return data
+}
 
 async function getExpenses() {
   const res = await api.expenses.$get()
@@ -34,9 +44,17 @@ async function getExpenses() {
 }
 
 export default function Expenses() {
-  const { isPending, error, data } = useQuery({
-    queryKey: ['get-total-spent'],
+  const {
+    isPending: dataPending,
+    error,
+    data,
+  } = useQuery({
+    queryKey: ['get-expenses'],
     queryFn: getExpenses,
+  })
+  const { data: columnData, isPending: columnsPending } = useQuery({
+    queryKey: ['get-columns'],
+    queryFn: getColumnNames,
   })
 
   if (error) {
@@ -47,7 +65,14 @@ export default function Expenses() {
       <View style={styles.title}>
         <Text variant="headlineLarge">Expenses</Text>
       </View>
-      <View style={styles.container}></View>
+      <View style={styles.pageContent}>
+        <Table
+          data={data?.expenses ?? []}
+          dataPending={dataPending}
+          columns={columnData?.columnNames ?? []}
+          columnsPending={columnsPending}
+        />
+      </View>
     </View>
   )
 }

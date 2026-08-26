@@ -4,7 +4,6 @@ import {
 } from '@basic-hosted-expense-tracker/shared'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
-
 const fakeExpenses: Array<Expense> = [
   { id: 1, title: 'Groceries', amount: 50 },
   { id: 2, title: 'Utilities', amount: 100 },
@@ -16,6 +15,10 @@ const createPostSchema = expenseSchema.omit({ id: true })
 export const expensesRoute = new Hono()
   .get('/', (c) => {
     return c.json({ expenses: fakeExpenses })
+  })
+  .get('/columns', (c) => {
+    const columnNames = expenseSchema.keyof().options
+    return c.json({ columnNames })
   })
   .post('/', zValidator('json', createPostSchema), (c) => {
     const expense = c.req.valid('json')
