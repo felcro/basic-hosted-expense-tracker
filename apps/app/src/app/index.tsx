@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 // import { StatusBar } from 'expo-status-bar'
-import { View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { StyleSheet } from 'react-native-unistyles'
 
+import { BaseView } from '../components/common/BaseView'
 import { Card, CardContent, CardTitle } from '../components/rnp-unistyles/Card'
 import { api } from '../lib/api'
 
@@ -48,23 +48,18 @@ export default function Home() {
   }
 
   return (
-    <View style={styles.screen}>
-      <View style={styles.title}>
-        <Text variant="headlineLarge">Home</Text>
-      </View>
-      <View style={styles.cardContainer}>
-        <Card>
-          <CardTitle
-            titleVariant="titleLarge"
-            title="Total Spent"
-            subtitle="The total amount you've spent"
-            subtitleVariant="bodyMedium"
-          />
-          <CardContent style={styles.cardContent}>
-            <Text variant="bodyLarge">{isPending ? '...' : data.total}</Text>
-          </CardContent>
-        </Card>
-      </View>
-    </View>
+    <BaseView title="Home">
+      <Card>
+        <CardTitle
+          titleVariant="titleLarge"
+          title="Total Spent"
+          subtitle="The total amount you've spent"
+          subtitleVariant="bodyMedium"
+        />
+        <CardContent style={styles.cardContent}>
+          <Text variant="bodyLarge">{isPending ? '...' : data.total}</Text>
+        </CardContent>
+      </Card>
+    </BaseView>
   )
 }

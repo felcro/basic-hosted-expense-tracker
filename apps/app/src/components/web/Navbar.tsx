@@ -16,16 +16,15 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.foreground,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.dimmed,
-    justifyContent: 'space-between',
-  },
-  links: {
-    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
   },
   switchContainer: {
     flexDirection: 'row',
     paddingHorizontal: theme.gap(2),
     gap: theme.gap(1),
     alignItems: 'center',
+    marginLeft: 'auto',
   },
 }))
 
@@ -44,13 +43,11 @@ export function Navbar({ routeList }: NavbarProps) {
 
   return (
     <View style={styles.navBar}>
-      <View style={styles.links}>
-        {routeList.map((route) => (
-          <Link key={route.name} href={route.href} asChild>
-            <TabButton label={route.label} focussed={pathname === route.href} />
-          </Link>
-        ))}
-      </View>
+      {routeList.map((route) => (
+        <Link key={route.name} href={route.href} asChild>
+          <TabButton label={route.label} focussed={pathname === route.href} />
+        </Link>
+      ))}
       <Pressable
         style={styles.switchContainer}
         onPress={toggleTheme}
