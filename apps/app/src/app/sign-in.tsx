@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { createURL } from 'expo-linking'
+import { Redirect } from 'expo-router'
 import {
   maybeCompleteAuthSession,
   openAuthSessionAsync,
@@ -10,6 +11,7 @@ import { StyleSheet } from 'react-native-unistyles'
 
 import { BaseView } from '../components/common/BaseView'
 import { userQueryOptions } from '../lib/api'
+import { useSession } from '../lib/auth'
 
 maybeCompleteAuthSession()
 
@@ -17,6 +19,16 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? '/'
 
 export default function SignIn() {
   const queryClient = useQueryClient()
+  // useRedirectAuth(routes.home.href)
+  const { isAuthenticated, isLoading } = useSession()
+
+  if (isLoading) {
+    return null
+  }
+
+  if (isAuthenticated) {
+    return <Redirect href="/" />
+  }
 
   async function openAuthUrl(path: '/api/login' | '/api/register') {
     if (Platform.OS === 'web') {

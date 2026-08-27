@@ -1,5 +1,5 @@
 import { Link, usePathname } from 'expo-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Pressable, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles'
@@ -32,14 +32,31 @@ export type NavbarProps = {
   routeList: typeof RouteList
 }
 
+function usePersistedState<T>(key: string, initialValue: T) {
+  const [state, setState] = useState(() => {
+    const saved = localStorage.getItem(key)
+    return saved ? JSON.parse(saved) : initialValue
+  })
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(state))
+  }, [key, state])
+
+  return { state, setState }
+}
+
 export function Navbar({ routeList }: NavbarProps) {
   const pathname = usePathname()
-  const [themeToggle, setThemeToggle] = useState(false)
 
-  const toggleTheme = () => {
-    setThemeToggle(!themeToggle)
-    UnistylesRuntime.setTheme(themeToggle ? 'light' : 'dark')
-  }
+  const { state: themeToggle, setState: setThemeToggle } = usePersistedState(
+    'dark-mode',
+    false,
+  )
+  useEffect(() => {
+    UnistylesRuntime.setTheme(themeToggle ? 'dark' : 'light')
+  }, [themeToggle])
+
+  const toggleTheme = () => setThemeToggle(!themeToggle)
 
   return (
     <View style={styles.navBar}>
@@ -58,7 +75,7 @@ export function Navbar({ routeList }: NavbarProps) {
         <Text variant="labelMedium">Enable Dark Mode</Text>
         <Switch
           value={themeToggle}
-          onValueChange={toggleTheme}
+          onValueChange={setThemeToggle}
           importantForAccessibility="no"
         />
       </Pressable>

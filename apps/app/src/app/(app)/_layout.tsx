@@ -1,11 +1,19 @@
+import { Redirect } from 'expo-router'
 import { TabList, TabSlot, TabTrigger, Tabs } from 'expo-router/ui'
 import { StyleSheet } from 'react-native-unistyles'
 
 import { TabButton } from '../../components/common/TabButton'
 import { NativeHeader } from '../../components/native/NativeHeader'
+import { useSession } from '../../lib/auth'
 import { routes } from '../../lib/routes'
 
 export default function RootLayout() {
+  const { isAuthenticated, isLoading } = useSession()
+
+  if (!isLoading && !isAuthenticated) {
+    return <Redirect href="/sign-in" />
+  }
+
   return (
     <>
       <NativeHeader title="Expense Tracker" />

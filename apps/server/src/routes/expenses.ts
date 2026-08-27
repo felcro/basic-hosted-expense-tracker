@@ -4,6 +4,9 @@ import {
 } from '@basic-hosted-expense-tracker/shared'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
+
+import { getUser } from '../../kinde'
+
 const fakeExpenses: Array<Expense> = [
   { id: 1, title: 'Groceries', amount: 50 },
   { id: 2, title: 'Utilities', amount: 100 },
@@ -13,27 +16,27 @@ const fakeExpenses: Array<Expense> = [
 const createPostSchema = expenseSchema.omit({ id: true })
 
 export const expensesRoute = new Hono()
-  .get('/', (c) => {
+  .get('/', getUser, (c) => {
     return c.json({ expenses: fakeExpenses })
   })
-  .get('/columns', (c) => {
+  .get('/columns', getUser, (c) => {
     const columnNames = expenseSchema.keyof().options
     return c.json({ columnNames })
   })
-  .post('/', zValidator('json', createPostSchema), (c) => {
+  .post('/', getUser, zValidator('json', createPostSchema), (c) => {
     const expense = c.req.valid('json')
     fakeExpenses.push({ ...expense, id: fakeExpenses.length + 1 })
     c.status(201)
     return c.json(expense)
   })
-  .get('/total-spent', (c) => {
+  .get('/total-spent', getUser, (c) => {
     const totalSpent = fakeExpenses.reduce(
       (acc, expense) => acc + expense.amount,
       0,
     )
     return c.json({ total: totalSpent })
   })
-  .get('/:id{[0-9]+}', (c) => {
+  .get('/:id{[0-9]+}', getUser, (c) => {
     const id = Number.parseInt(c.req.param('id'))
     const expense = fakeExpenses.find((expense) => expense.id === id)
     if (!expense) {
@@ -41,7 +44,7 @@ export const expensesRoute = new Hono()
     }
     return c.json({ expense })
   })
-  .delete('/:id{[0-9]+}', (c) => {
+  .delete('/:id{[0-9]+}', getUser, (c) => {
     const id = Number.parseInt(c.req.param('id'))
     const index = fakeExpenses.findIndex((expense) => expense.id === id)
     if (index === -1) {
