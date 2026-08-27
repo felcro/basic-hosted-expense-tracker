@@ -3,9 +3,13 @@ import { useQuery } from '@tanstack/react-query'
 import { Text } from 'react-native-paper'
 import { StyleSheet } from 'react-native-unistyles'
 
-import { BaseView } from '../components/common/BaseView'
-import { Card, CardContent, CardTitle } from '../components/rnp-unistyles/Card'
-import { api } from '../lib/api'
+import { BaseView } from '../../components/common/BaseView'
+import {
+  Card,
+  CardContent,
+  CardTitle,
+} from '../../components/rnp-unistyles/Card'
+import { api } from '../../lib/api'
 
 const styles = StyleSheet.create((theme) => ({
   screen: {

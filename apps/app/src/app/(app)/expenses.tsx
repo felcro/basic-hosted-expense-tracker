@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { BaseView } from '../components/common/BaseView'
-import { Table } from '../components/common/Table'
-import { LinkText } from '../components/common/Text'
-import { api } from '../lib/api'
-import { routes } from '../lib/routes'
+import { BaseView } from '../../components/common/BaseView'
+import { Table } from '../../components/common/Table'
+import { LinkText } from '../../components/common/Text'
+import { api } from '../../lib/api'
+import { routes } from '../../lib/routes'
 
 async function getColumnNames() {
   const res = await api.expenses.columns.$get()

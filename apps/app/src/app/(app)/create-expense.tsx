@@ -9,11 +9,11 @@ import { View } from 'react-native'
 import { Button } from 'react-native-paper'
 import { StyleSheet } from 'react-native-unistyles'
 
-import { BaseView } from '../components/common/BaseView'
-import { LinkText } from '../components/common/Text'
-import { TextInput } from '../components/common/TextInput'
-import { api } from '../lib/api'
-import { routes } from '../lib/routes'
+import { BaseView } from '../../components/common/BaseView'
+import { LinkText } from '../../components/common/Text'
+import { TextInput } from '../../components/common/TextInput'
+import { api } from '../../lib/api'
+import { routes } from '../../lib/routes'
 
 const styles = StyleSheet.create((theme) => ({
   form: {
