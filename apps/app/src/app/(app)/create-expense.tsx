@@ -37,7 +37,6 @@ export default function CreateExpense() {
   const { handleSubmit, reset, formState } = methods
 
   const onSubmit = async (data: PostExpense) => {
-    await new Promise((c) => setTimeout(c, 1000))
     const res = await api.expenses.$post({ json: data })
     if (!res.ok) {
       throw new Error('server error')
