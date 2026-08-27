@@ -10,6 +10,7 @@
   "dependencies": {
     "@basic-hosted-expense-tracker/shared": "workspace:^",
     "@hono/zod-validator": "^0.9.0",
+    "@kinde-oss/kinde-typescript-sdk": "^2.15.1",
     "hono": "^4.13.3"
   },
   "devDependencies": {

@@ -3,6 +3,7 @@ import { serveStatic } from 'hono/bun'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 
+import { authRoute } from './routes/auth'
 import { expensesRoute } from './routes/expenses'
 
 // Setup
@@ -19,7 +20,10 @@ server.get('/health', (c) => {
 })
 
 // Routes
-const apiRoutes = server.basePath('/api').route('/expenses', expensesRoute)
+const apiRoutes = server
+  .basePath('/api')
+  .route('/expenses', expensesRoute)
+  .route('/', authRoute)
 
 // Static serving the server
 const webRoot = './apps/app/dist'
