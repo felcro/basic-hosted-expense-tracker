@@ -1,11 +1,18 @@
-import { useForm } from 'react-hook-form'
+import {
+  expensePostSchema,
+  type PostExpense,
+} from '@basic-hosted-expense-tracker/shared'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { router } from 'expo-router'
+import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
-import { Button, Text } from 'react-native-paper'
+import { Button } from 'react-native-paper'
 import { StyleSheet } from 'react-native-unistyles'
 
 import { BaseView } from '../components/common/BaseView'
 import { LinkText } from '../components/common/Text'
 import { TextInput } from '../components/common/TextInput'
+import { api } from '../lib/api'
 import { routes } from '../lib/routes'
 
 const styles = StyleSheet.create((theme) => ({
@@ -20,49 +27,47 @@ const styles = StyleSheet.create((theme) => ({
 }))
 
 export default function CreateExpense() {
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm({
+  const methods = useForm({
+    resolver: zodResolver(expensePostSchema),
     defaultValues: {
       title: '',
-      amount: undefined,
+      amount: '',
     },
   })
-  const onSubmit = (data) => {
+  const { handleSubmit, reset, formState } = methods
+
+  const onSubmit = async (data: PostExpense) => {
+    await new Promise((c) => setTimeout(c, 1000))
+    const res = await api.expenses.$post({ json: data })
+    if (!res.ok) {
+      throw new Error('server error')
+    }
     reset()
-    console.log(data)
+    router.navigate(routes.expenses.href)
   }
 
   return (
     <BaseView title="Create Expense">
-      <View style={styles.form}>
-        <TextInput
-          label="Title"
-          style={styles.textInput}
-          placeholder="Enter expense title"
-          formController={control}
-          rules={{ required: true }}
-          name="title"
-        />
-        {errors.title && (
-          <Text style={{ color: 'red' }}>This is required.</Text>
-        )}
-        <TextInput
-          label="Amount"
-          style={styles.textInput}
-          placeholder="Enter expense amount"
-          formController={control}
-          rules={{ required: true }}
-          name="amount"
-        />
-        {errors.amount && (
-          <Text style={{ color: 'red' }}>This is required.</Text>
-        )}
-        <Button onPress={handleSubmit(onSubmit)}>Submit</Button>
-      </View>
+      <FormProvider {...methods}>
+        <View style={styles.form}>
+          <TextInput
+            label="Title"
+            placeholder="Enter expense title"
+            name="title"
+          />
+          <TextInput
+            label="Amount"
+            placeholder="Enter expense amount"
+            name="amount"
+          />
+          <Button
+            disabled={formState.isSubmitting}
+            onPress={handleSubmit(onSubmit)}
+          >
+            {formState?.isSubmitting ? 'Submission in progress...' : 'Submit'}
+          </Button>
+        </View>
+      </FormProvider>
       <LinkText href={routes.home.href} label="Home Page" />
     </BaseView>
   )

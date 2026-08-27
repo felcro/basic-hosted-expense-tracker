@@ -55,7 +55,7 @@ export function Table<T extends Id>({
     (!columnsPending && data[0] ? (Object.keys(data[0]) as Array<keyof T>) : [])
 
   const [page, setPage] = useState<number>(0)
-  const [numberOfItemsPerPageList] = useState<Array<number>>([2, 3, 4])
+  const [numberOfItemsPerPageList] = useState<Array<number>>([5, 10, 20])
   const [itemsPerPage, onItemsPerPageChange] = useState<number>(
     numberOfItemsPerPageList[0] ?? 10,
   )
