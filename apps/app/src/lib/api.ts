@@ -2,7 +2,12 @@ import { type ApiRoutes } from '@basic-hosted-expense-tracker/server'
 import { queryOptions } from '@tanstack/react-query'
 import { hc } from 'hono/client'
 
-const client = hc<ApiRoutes>(process.env.EXPO_PUBLIC_API_URL ?? '/', {
+// Empty string when unset (same-origin deploys don't need it); never a bare '/',
+// which breaks URL concatenation elsewhere (`'/' + '/path'` -> `//path`, a
+// protocol-relative URL that resolves to the wrong host).
+export const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? ''
+
+const client = hc<ApiRoutes>(apiUrl || '/', {
   fetch: (input: RequestInfo | URL, init?: RequestInit) =>
     fetch(input, { ...init, credentials: 'include' }),
 })

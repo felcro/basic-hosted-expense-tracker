@@ -10,12 +10,10 @@ import { Button, Text } from 'react-native-paper'
 import { StyleSheet } from 'react-native-unistyles'
 
 import { BaseView } from '../components/common/BaseView'
-import { userQueryOptions } from '../lib/api'
+import { apiUrl, userQueryOptions } from '../lib/api'
 import { useSession } from '../lib/auth'
 
 maybeCompleteAuthSession()
-
-const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? '/'
 
 export default function SignIn() {
   const queryClient = useQueryClient()

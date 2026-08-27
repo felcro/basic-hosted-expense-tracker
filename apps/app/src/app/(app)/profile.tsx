@@ -4,18 +4,16 @@ import { Button, Text } from 'react-native-paper'
 
 import { BaseView } from '../../components/common/BaseView'
 import { LinkText } from '../../components/common/Text'
-import { userQueryOptions } from '../../lib/api'
+import { apiUrl, userQueryOptions } from '../../lib/api'
 import { routes } from '../../lib/routes'
-
-const logoutUrl = process.env.EXPO_PUBLIC_API_URL ?? '/'
 
 export default function Profile() {
   const queryClient = useQueryClient()
   async function logout() {
     if (Platform.OS === 'web') {
-      window.location.href = `${logoutUrl}/api/logout`
+      window.location.href = `${apiUrl}/api/logout`
     } else {
-      Linking.openURL(`${logoutUrl}/api/logout`)
+      Linking.openURL(`${apiUrl}/api/logout`)
     }
     queryClient.setQueryData(userQueryOptions.queryKey, null)
   }
@@ -32,7 +30,7 @@ export default function Profile() {
     <BaseView title="Profile">
       <View>
         <Text variant="bodyMedium">
-          Hello {data?.user.given_name + ' ' + data?.user.family_name}
+          Hello {data?.user?.given_name + ' ' + data?.user?.family_name}
         </Text>
       </View>
       <LinkText href={routes.home.href} label="Home Page" />
