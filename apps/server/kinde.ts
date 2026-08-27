@@ -28,7 +28,7 @@ export const sessionManager = (c: Context): SessionManager => ({
     const cookieOptions = {
       httpOnly: true,
       secure: true,
-      sameSite: 'Lax',
+      sameSite: process.env['COOKIE_SAME_SITE'] === 'None' ? 'None' : 'Lax',
     } as const
     if (typeof value === 'string') {
       setCookie(c, key, value, cookieOptions)
@@ -64,8 +64,7 @@ export const getUser = createMiddleware<Env>(async (c, next) => {
     const user = await kindeClient.getUserProfile(manager)
     c.set('user', user)
     await next()
-  } catch (error) {
-    console.error(error)
+  } catch {
     return c.json({ error: 'Unauthorised ' }, 401)
   }
 })

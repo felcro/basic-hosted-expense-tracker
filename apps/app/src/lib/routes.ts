@@ -15,6 +15,7 @@ export const routes = {
     href: '/create-expense',
     label: 'Create Expense',
   },
+  profile: { name: 'profile', href: '/profile', label: 'Profile' },
 } as const satisfies Record<string, Route>
 
 export type RouteName = keyof typeof routes

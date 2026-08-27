@@ -1,10 +1,15 @@
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
 import { cors } from 'hono/cors'
+import { csrf } from 'hono/csrf'
 import { logger } from 'hono/logger'
 
 import { authRoute } from './routes/auth'
 import { expensesRoute } from './routes/expenses'
+
+const allowedOrigins = (process.env['ALLOWED_ORIGINS'] ?? '')
+  .split(',')
+  .filter(Boolean)
 
 // Setup
 const server = new Hono()
@@ -12,9 +17,11 @@ server.use('*', logger())
 server.use(
   '/api/*',
   cors({
-    origin: (process.env['ALLOWED_ORIGINS'] ?? '').split(',').filter(Boolean),
+    origin: allowedOrigins,
+    credentials: true,
   }),
 )
+server.use('/api/*', csrf({ origin: allowedOrigins }))
 server.get('/health', (c) => {
   return c.json({ status: 'ok' })
 })
