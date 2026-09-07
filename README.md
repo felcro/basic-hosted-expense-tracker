@@ -4,11 +4,12 @@ A small expense tracker built as a learning project for a full-stack, cloud-host
 
 ## Tech stack
 
-This project exists to develop my skills with tech I haven't used before:
+This project exists to develop my skills with things I haven't used before, trying to implement best practices along the way:
 
 - **[Bun](https://bun.com)** — package manager for the whole monorepo. Chosen due to it's speed and simplicity. I've worked with npm and yarn a lot, so wanted to try something new. I'm a fan!
 - **[Hono](https://hono.dev)** — the API server framework. Runs directly on `Bun.serve()` and it's a pleasure to work with. Generally it boasts speed and performance, but also is designed to run anywhere without modification, which is very appealing when starting work on a new project and you aren't fully sure where the tech stack will take you yet.
 - **[Drizzle ORM](https://orm.drizzle.team)** + **Postgres** — schema, migrations (`drizzle-kit`), and queries against a hosted Supabase Postgres instance. Row/insert types are derived from the schema with `drizzle-zod`. I chose Drizzle over Prisma because it's another new and fast-rising technology, and integrates really nicely with typescript. Similar to QueryDSL in Java then way the query code is written, which is familiar. The real time type inference is great. It has made deploying to a PostgreSQL db in Supabase super straightforward and easy.
+- **[Clever Cloud](https://www.clever-cloud.com)** — hosts the Bun server (API + built web app). Chose clever cloud since it is EU based, and a PaaS, and they are sustainable. I haven't worked with hosting application code by myself before, and there were so many to choose from... But I wanted to use an EU based option that was sustainable. I've found them super simple and easy to use. Originally I was going to use Clever Cloud also to host my db, but opted to go for Supabase in the end to broaden my horizons.
 - **[Supabase](https://supabase.com)** — hosts the Postgres database. Using it as a managed Postgres box for now rather than any of its other features (auth, storage, realtime, edge functions), but it made spinning up a proper hosted db for a side project painless, connection string and all.
 - **[Kinde](https://kinde.com)** — hosted authentication. The server handles the OAuth flow and stores the session in an HTTP-only cookie; it never touches passwords directly. I couldn't make my mind up between Kinde, Clerk, or Supabase Auth, so I went for Kinde because I found a nice tutorial for it 🙂 I will try out Supabase Auth in the next project.
 - **[Hono RPC](https://hono.dev/docs/guides/rpc)** — the server exports its route types (`ApiRoutes`), and the client builds a fully-typed fetch client from them with `hono/client`. No manually-written API types or OpenAPI codegen. This makes fantastic type safety in code, saving lots of debugging time, and was chosen because it works very well in a monorepo. Originally I was planning on writing this server in Python, but seeing the possibilities with RPC and shared type safety was too tempting.
@@ -43,3 +44,19 @@ This is a Bun workspace monorepo:
 
 This app will be available at the following URL once complete:
 _**STILL W.I.P: NOT COMPLETE YET!**_
+
+## AI
+
+I have tried to avoid using AI as much as possible whilst developing this app, since the whole point was to learn, not to just get Claude to generate code for me while I watch.
+
+That being said, there are 2 edge cases where I relaxed this rule:
+
+1. Generating boilerplate code I knew would take me a while to write but I know how to (e.g. creating React context).
+2. Refactoring code I'd already written into different areas (e.g. splitting out React components I'd written into more generic functions - similar to the boilerplate thing really...)
+3. When I was genuinely stuck. This project has been a steep learning curve for me, and things like auth and hosting are tricky to get working the first time when you don't know what needs doing!
+
+I've found this approach to be the most beneficial, treating AI throughout this project as more like a coach. If I get AI to write all the code for me, how can I ever know what is right or wrong in the future?
+
+Don't get me wrong, I think AI coding tools are very powerful and I don't shy away from their use case. I just didn't want to use them much here in a learning project.
+
+Also, coding is fun. Reviewing AI code is a lot less fun. So, I have had a lot more fun doing it this way 🙂
