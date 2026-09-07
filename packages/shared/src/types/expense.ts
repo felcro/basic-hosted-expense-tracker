@@ -11,7 +11,7 @@ export const expenseSchema = z.object({
       'The username must contain only letters, numbers and underscore (_)',
     ),
   amount: z.string().regex(/^\d+(\.\d{1,2})?$/, {
-    message: 'Amount must be a positive number',
+    message: 'Amount must be a valid monetary value',
   }),
   createdAt: z.iso.datetime().nullable(),
 })
