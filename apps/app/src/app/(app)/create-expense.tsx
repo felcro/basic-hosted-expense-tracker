@@ -1,5 +1,5 @@
 import {
-  expensePostSchema,
+  createExpenseSchema,
   type PostExpense,
 } from '@basic-hosted-expense-tracker/shared'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -28,7 +28,7 @@ const styles = StyleSheet.create((theme) => ({
 
 export default function CreateExpense() {
   const methods = useForm({
-    resolver: zodResolver(expensePostSchema),
+    resolver: zodResolver(createExpenseSchema),
     defaultValues: {
       title: '',
       amount: '',

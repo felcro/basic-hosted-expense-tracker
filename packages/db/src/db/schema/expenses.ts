@@ -6,6 +6,7 @@ import {
   text,
   timestamp,
 } from 'drizzle-orm/pg-core'
+import { createSelectSchema, createInsertSchema } from 'drizzle-orm/zod'
 
 export const expenses = pgTable(
   'expenses',
@@ -18,3 +19,6 @@ export const expenses = pgTable(
   },
   (expenses) => [index('name_idx').on(expenses.userId)],
 )
+
+export const insertExpensesSchema = createInsertSchema(expenses)
+export const selectExpensesSchema = createSelectSchema(expenses)

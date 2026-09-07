@@ -37,7 +37,7 @@ export type TableProps<T extends Id> = {
   dataPending?: boolean
   /** Provide the columns to render the header ahead of the table data */
   columns?: Array<keyof T>
-  columnsPending?: boolean
+  columnsPending?: boolean // TODO Remove this since the /columns endpoint will be removed.
 }
 
 export function Table<T extends Id>({
