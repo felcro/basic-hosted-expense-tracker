@@ -5,16 +5,26 @@
   "module": "index.ts",
   "scripts": {
     "server": "bun serve.ts",
-    "devserver": "bun --watch serve.ts"
+    "devserver": "bun --watch serve.ts",
+    "generate": "bun drizzle-kit generate",
+    "migrate": "bun drizzle-kit migrate",
+    "generate:migrate": "bun drizzle-kit generate && bun drizzle-kit migrate",
+    "studio": "bun drizzle-kit studio"
   },
   "dependencies": {
     "@basic-hosted-expense-tracker/shared": "workspace:^",
     "@hono/zod-validator": "^0.9.0",
     "@kinde-oss/kinde-typescript-sdk": "^2.15.1",
-    "hono": "^4.13.3"
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^1.0.0-rc.4",
+    "hono": "^4.13.3",
+    "postgres": "^3.4.9",
+    "supabase": "^2.116.0"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "drizzle-kit": "^1.0.0-rc.4",
+    "tsx": "^4.23.13"
   },
   "peerDependencies": {
     "typescript": "catalog:"

@@ -7,7 +7,7 @@ import { logger } from 'hono/logger'
 import { authRoute } from './routes/auth'
 import { expensesRoute } from './routes/expenses'
 
-const allowedOrigins = (process.env['ALLOWED_ORIGINS'] ?? '')
+const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? '')
   .split(',')
   .filter(Boolean)
 

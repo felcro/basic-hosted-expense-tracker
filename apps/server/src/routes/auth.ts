@@ -30,7 +30,7 @@ export const authRoute = new Hono()
     await kindeClient.handleRedirectToApp(sessionManager(c), url)
     const appRedirect = getCookie(c, appRedirectCookie)
     deleteCookie(c, appRedirectCookie)
-    const webRedirect = process.env['APP_URL'] ?? '/'
+    const webRedirect = process.env.APP_URL ?? '/'
     return c.redirect(appRedirect ?? webRedirect)
   })
   .get('/logout', async (c) => {

@@ -61,7 +61,7 @@ export default function Home() {
           subtitleVariant="bodyMedium"
         />
         <CardContent style={styles.cardContent}>
-          <Text variant="bodyLarge">{isPending ? '...' : data.total}</Text>
+          <Text variant="bodyLarge">{isPending ? '...' : data?.total}</Text>
         </CardContent>
       </Card>
     </BaseView>
