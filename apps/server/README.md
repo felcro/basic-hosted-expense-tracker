@@ -1,15 +1,7 @@
 # server
 
-To install dependencies:
+Hono API server, running on `Bun.serve()`. Handles auth (via Kinde) and the `/api/expenses` routes, and also serves the built Expo web app (`apps/app/dist`) as static files.
 
-```bash
-bun install
-```
+## Env
 
-To run:
-
-```bash
-bun run serve.ts
-```
-
-This project was created using `bun init` in bun v1.4.0. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+See `.env` — needs `DATABASE_URL`, `ALLOWED_ORIGINS`, `APP_URL`, and the `KINDE_*` variables.
