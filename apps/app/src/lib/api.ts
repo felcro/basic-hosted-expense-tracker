@@ -29,13 +29,24 @@ export const userQueryOptions = queryOptions({
   staleTime: Infinity,
 })
 
+const convertUTCToLocale = (date: string) =>
+  new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'short',
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  }).format(new Date(date))
+
 async function getExpenses() {
   const res = await api.expenses.$get()
   if (!res.ok) {
     throw new Error('server error')
   }
   const data = await res.json()
-  return data
+  return {
+    expenses: data.expenses.map((expense) => ({
+      ...expense,
+      date: convertUTCToLocale(expense.date),
+    })),
+  }
 }
 
 export const getExpensesQueryOptions = queryOptions({

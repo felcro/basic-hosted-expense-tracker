@@ -30,6 +30,7 @@ export const expensesRoute = new Hono()
 
     const validatedExpense = insertExpensesSchema.parse({
       ...expense,
+      date: new Date(expense.date),
       userId: user.id,
     })
 

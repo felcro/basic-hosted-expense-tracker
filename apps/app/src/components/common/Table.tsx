@@ -37,14 +37,12 @@ export type TableProps<T extends Id> = {
   dataPending?: boolean
   /** Provide the columns to render the header ahead of the table data */
   columns?: Array<keyof T>
-  columnsPending?: boolean // TODO Remove this since the /columns endpoint will be removed.
 }
 
 export function Table<T extends Id>({
   data,
   columns,
   dataPending,
-  columnsPending,
 }: TableProps<T>) {
   const { theme } = useUnistyles()
 
@@ -52,7 +50,7 @@ export function Table<T extends Id>({
   // If columns are not provided, fallback to inferring titles from the data.
   const resolvedColumns =
     columns ??
-    (!columnsPending && data[0] ? (Object.keys(data[0]) as Array<keyof T>) : [])
+    (!dataPending && data[0] ? (Object.keys(data[0]) as Array<keyof T>) : [])
 
   const [page, setPage] = useState<number>(0)
   const [numberOfItemsPerPageList] = useState<Array<number>>([5, 10, 20])
@@ -68,27 +66,22 @@ export function Table<T extends Id>({
   return (
     <DataTable style={styles.table}>
       <DataTableHeader>
-        {columnsPending
-          ? Array.from({ length: skeletonColumnCount }).map((_, i) => (
-              <DataTableCell key={i} style={[styles.allCells, styles.title]}>
-                <SkeletonBone width="60%" height={14} />
-              </DataTableCell>
-            ))
-          : resolvedColumns.map((column, i) => {
-              return (
-                <DataTableTitle
-                  key={i}
-                  numeric={isNumericColumn(column)}
-                  style={[styles.allCells, styles.title]}
-                  textStyle={theme.fonts.labelMedium}
-                >
-                  {String(column)}
-                </DataTableTitle>
-              )
-            })}
+        {resolvedColumns.map((column, i) => {
+          const colName = String(column)
+          return (
+            <DataTableTitle
+              key={i}
+              numeric={isNumericColumn(column)}
+              style={[styles.allCells, styles.title]}
+              textStyle={theme.fonts.labelMedium}
+            >
+              {colName.charAt(0).toUpperCase() + colName.slice(1)}
+            </DataTableTitle>
+          )
+        })}
       </DataTableHeader>
 
-      {dataPending || columnsPending ? (
+      {dataPending ? (
         <DataTableRow key={0}>
           {Array.from({ length: skeletonColumnCount }).map((_, i) => (
             <DataTableCell key={i} style={[styles.allCells]}>

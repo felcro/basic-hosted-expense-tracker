@@ -1,5 +1,4 @@
 import {
-  date,
   index,
   numeric,
   pgTable,
@@ -16,7 +15,7 @@ export const expenses = pgTable(
     userId: text('user_id').notNull(),
     title: text('title').notNull(),
     amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
-    date: date('date').notNull(),
+    date: timestamp('date', { withTimezone: true }).notNull(),
     createdAt: timestamp('created_at').defaultNow(),
   },
   (expenses) => [index('name_idx').on(expenses.userId)],
