@@ -11,13 +11,13 @@
   },
   "dependencies": {
     "dotenv": "^17.4.2",
-    "drizzle-orm": "^1.0.0-rc.4",
+    "drizzle-orm": "catalog:",
     "postgres": "^3.4.9",
-    "zod": "^4.4.3"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "drizzle-kit": "^1.0.0-rc.4",
+    "drizzle-kit": "catalog:",
     "tsx": "^4.23.13"
   },
   "peerDependencies": {

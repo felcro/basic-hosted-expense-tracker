@@ -1,105 +1,41 @@
-Default to using Bun instead of Node.js.
+# basic-hosted-expense-tracker
 
-- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
-- Use `bun test` instead of `jest` or `vitest`
-- Use `bun build <file.html|file.ts|file.css>` instead of `webpack` or `esbuild`
-- Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`
-- Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`
-- Use `bunx <package> <command>` instead of `npx <package> <command>`
-- Bun automatically loads .env, so don't use dotenv.
+Bun workspace monorepo.
 
-## APIs
+## IMPORTANT
 
-- `Bun.serve()` supports WebSockets, HTTPS, and routes. Don't use `express`.
-- `bun:sqlite` for SQLite. Don't use `better-sqlite3`.
-- `Bun.redis` for Redis. Don't use `ioredis`.
-- `Bun.sql` for Postgres. Don't use `pg` or `postgres.js`.
-- `WebSocket` is built-in. Don't use `ws`.
-- Prefer `Bun.file` over `node:fs`'s readFile/writeFile
-- Bun.$`ls` instead of execa.
+YOU MUST NEVER access any .env files, as these are secrets. Environment variable names are defined in the respective package CLAUDE.md files. If the values in .env are required for debugging at any point, ALWAYS ask the user to manually provide them first.
 
-## Testing
+## Structure
 
-Use `bun test` to run tests.
+- `apps/app` — Expo/React Native mobile app (see `apps/app/CLAUDE.md`)
+- `apps/server` — backend API (see `apps/server/CLAUDE.md`)
+- `packages/db` — database layer (see `packages/db/CLAUDE.md`)
+- `packages/shared` — code shared across `apps/*` (see `packages/shared/CLAUDE.md`)
 
-```ts#index.test.ts
-import { test, expect } from "bun:test";
+Dependency versions shared across packages (e.g. `hono`, `typescript`, `zod`, etc...) are pinned once in this root `package.json`'s `workspaces.catalog` and referenced as `"catalog:"` in each package's own `package.json`. When bumping one of these, edit the catalog entry here, not the individual package.
 
-test("hello world", () => {
-  expect(1).toBe(1);
-});
-```
+## Package manager
 
-## Frontend
+Use Bun, not npm/yarn/pnpm, everywhere in this repo:
 
-Use HTML imports with `Bun.serve()`. Don't use `vite`. HTML imports fully support React, CSS, Tailwind.
+- `bun install` — install dependencies (run from repo root)
+- `bun run <script>` — run a package.json script
+- `bun run --filter '*' <script>` — run a script across every workspace package that defines it
+- `bunx <package>` — one-off package execution instead of `npx`
 
-Server:
+`bunfig.toml` sets `install.linker = "hoisted"`. This is required, not optional — the default linker leaves multiple physical copies of some transitive dependencies (metro, react-native-web-adjacent packages) installed simultaneously, which breaks Metro bundling in `apps/app`. Do not remove it without re-verifying the app still bundles on web and native.
 
-```ts#index.ts
-import index from "./index.html"
+`package.json` has an `overrides.metro` pin (currently `0.84.5`). Several dependencies in `apps/app` pull in different versions of `metro` transitively; without the override, Bun installs multiple incompatible copies side by side and native/web bundling breaks with `Bundler` class-identity mismatches. Keep this pinned to whatever version `@expo/metro-runtime` and `metro-config` in `apps/app` actually declare — check both before changing it.
 
-Bun.serve({
-  routes: {
-    "/": index,
-    "/api/users/:id": {
-      GET: (req) => {
-        return new Response(JSON.stringify({ id: req.params.id }));
-      },
-    },
-  },
-  // optional websocket support
-  websocket: {
-    open: (ws) => {
-      ws.send("Hello, world!");
-    },
-    message: (ws, message) => {
-      ws.send(message);
-    },
-    close: (ws) => {
-      // handle close
-    }
-  },
-  development: {
-    hmr: true,
-    console: true,
-  }
-})
-```
+## Running scripts
 
-HTML files can import .tsx, .jsx or .js files directly and Bun's bundler will transpile & bundle automatically. `<link>` tags can point to stylesheets and Bun's CSS bundler will bundle.
+Every time you start a server within a session, stop the server process once you have finished using it so the user can run the server on the expected port. Do not claim the server has stopped without verifying the process has been killed.
 
-```html#index.html
-<html>
-  <body>
-    <h1>Hello, world!</h1>
-    <script type="module" src="./frontend.tsx"></script>
-  </body>
-</html>
-```
+## Linting & formatting
 
-With the following `frontend.tsx`:
+- `bun run lint` — oxfmt + oxlint
+- `bun run lint:fix` — same, with autofix
+- `bun run fmt` — oxfmt only
 
-```tsx#frontend.tsx
-import React from "react";
-import { createRoot } from "react-dom/client";
-
-// import .css files directly and it works
-import './index.css';
-
-const root = createRoot(document.body);
-
-export default function Frontend() {
-  return <h1>Hello, world!</h1>;
-}
-
-root.render(<Frontend />);
-```
-
-Then, run index.ts
-
-```sh
-bun --hot ./index.ts
-```
-
-For more information, read the Bun API docs in `node_modules/bun-types/docs/**.mdx`.
+Config: `oxlint.config.ts`, `oxfmt.config.ts` at repo root.

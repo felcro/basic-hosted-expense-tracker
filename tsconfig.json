@@ -27,7 +27,8 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noUncheckedSideEffectImports": true,
-    "noPropertyAccessFromIndexSignature": true
-  }
+    "noUncheckedSideEffectImports": true
+    // "noPropertyAccessFromIndexSignature": true
+  },
+  "exclude": ["./node_modules/**"]
 }

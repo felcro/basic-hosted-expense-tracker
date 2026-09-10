@@ -2,9 +2,7 @@
   "version": "8",
   "dialect": "postgres",
   "id": "eb00cab0-427a-474f-962b-307911f58c34",
-  "prevIds": [
-    "333cfce6-6bbe-4203-accb-0db92bff0de0"
-  ],
+  "prevIds": ["333cfce6-6bbe-4203-accb-0db92bff0de0"],
   "ddl": [
     {
       "isRlsEnabled": false,
@@ -99,9 +97,7 @@
       "table": "expenses"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "expenses_pkey",
       "schema": "public",

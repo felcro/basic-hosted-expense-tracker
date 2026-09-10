@@ -4,7 +4,7 @@
   "type": "module",
   "module": "index.ts",
   "dependencies": {
-    "zod": "^4.4.3"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "latest"

@@ -1,0 +1,140 @@
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css';
+@import 'nativewind/theme';
+
+/* ─── Theme: design tokens (light / dark) ─────────────────────────
+   1. :root              — light defaults (all platforms)
+   2. @media dark :root  — dark defaults; nativewind maps this to
+                           Appearance.getColorScheme() on native.
+   3. :root.dark / :root.light — higher specificity for web class toggle. */
+@layer theme {
+  :root {
+    /* mapped from src/theme/themeTokens.ts lightColors */
+    --primary: 154 115 76; /* tint */
+    --primary-foreground: 252 250 248; /* background */
+    --card: 237 234 230; /* foreground (surface) */
+    --secondary: 236 232 228; /* dimmed */
+    --secondary-foreground: 27 20 12; /* typography */
+    --background: 252 250 248; /* background */
+    --popover: 237 234 230; /* foreground (surface) */
+    --popover-foreground: 27 20 12; /* typography */
+    --muted: 236 232 228; /* dimmed */
+    --muted-foreground: 27 20 12; /* typography (washed, alpha not representable here) */
+    --destructive: 255 121 121; /* accents.apple */
+    --foreground: 27 20 12; /* typography */
+    --border: 236 232 228; /* dimmed */
+    --input: 236 232 228; /* dimmed */
+    --ring: 30 55 153; /* link */
+    --accent: 27 20 12; /* activeTint */
+    --accent-foreground: 252 250 248; /* background */
+    --accent-banana: 246 229 141;
+    --accent-pumpkin: 255 190 118;
+    --accent-apple: 255 121 121;
+    --accent-grass: 186 220 88;
+    --accent-storm: 104 109 224;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      /* mapped from src/theme/themeTokens.ts darkColors */
+      --primary: 201 173 146; /* tint */
+      --primary-foreground: 34 26 17; /* background */
+      --card: 51 38 24; /* foreground (surface) */
+      --secondary: 168 161 152; /* dimmed */
+      --secondary-foreground: 255 255 255; /* typography */
+      --background: 34 26 17; /* background */
+      --popover: 51 38 24; /* foreground (surface) */
+      --popover-foreground: 255 255 255; /* typography */
+      --muted: 168 161 152; /* dimmed */
+      --muted-foreground: 255 255 255; /* typography (washed, alpha not representable here) */
+      --destructive: 235 77 75; /* accents.apple */
+      --foreground: 255 255 255; /* typography */
+      --border: 168 161 152; /* dimmed */
+      --input: 168 161 152; /* dimmed */
+      --accent: 255 255 255; /* activeTint */
+      --accent-foreground: 34 26 17; /* background */
+      --ring: 12 36 97; /* link */
+      --accent-banana: 249 202 36;
+      --accent-pumpkin: 240 147 43;
+      --accent-apple: 235 77 75;
+      --accent-grass: 106 176 76;
+      --accent-storm: 72 52 212;
+    }
+  }
+
+  :root.dark {
+    --primary: 201 173 146;
+    --primary-foreground: 34 26 17;
+    --card: 51 38 24;
+    --secondary: 168 161 152;
+    --secondary-foreground: 255 255 255;
+    --background: 34 26 17;
+    --popover: 51 38 24;
+    --popover-foreground: 255 255 255;
+    --muted: 168 161 152;
+    --muted-foreground: 255 255 255;
+    --destructive: 235 77 75;
+    --foreground: 255 255 255;
+    --border: 168 161 152;
+    --input: 168 161 152;
+    --accent: 255 255 255;
+    --accent-foreground: 34 26 17;
+    --ring: 12 36 97;
+    --accent-banana: 249 202 36;
+    --accent-pumpkin: 240 147 43;
+    --accent-apple: 235 77 75;
+    --accent-grass: 106 176 76;
+    --accent-storm: 72 52 212;
+  }
+
+  :root.light {
+    --primary: 154 115 76;
+    --primary-foreground: 252 250 248;
+    --card: 237 234 230;
+    --secondary: 236 232 228;
+    --secondary-foreground: 27 20 12;
+    --background: 252 250 248;
+    --popover: 237 234 230;
+    --popover-foreground: 27 20 12;
+    --muted: 236 232 228;
+    --muted-foreground: 27 20 12;
+    --destructive: 255 121 121;
+    --foreground: 27 20 12;
+    --border: 236 232 228;
+    --input: 236 232 228;
+    --ring: 30 55 153;
+    --accent: 27 20 12;
+    --accent-foreground: 252 250 248;
+    --accent-banana: 246 229 141;
+    --accent-pumpkin: 255 190 118;
+    --accent-apple: 255 121 121;
+    --accent-grass: 186 220 88;
+    --accent-storm: 104 109 224;
+  }
+}
+
+@theme inline {
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+  --color-card: rgb(var(--card));
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+  --color-background: rgb(var(--background));
+  --color-popover: rgb(var(--popover));
+  --color-popover-foreground: rgb(var(--popover-foreground));
+  --color-muted: rgb(var(--muted));
+  --color-muted-foreground: rgb(var(--muted-foreground));
+  --color-destructive: rgb(var(--destructive));
+  --color-foreground: rgb(var(--foreground));
+  --color-border: rgb(var(--border));
+  --color-input: rgb(var(--input));
+  --color-ring: rgb(var(--ring));
+  --color-accent: rgb(var(--accent));
+  --color-accent-foreground: rgb(var(--accent-foreground));
+  --color-accent-banana: rgb(var(--accent-banana));
+  --color-accent-pumpkin: rgb(var(--accent-pumpkin));
+  --color-accent-apple: rgb(var(--accent-apple));
+  --color-accent-grass: rgb(var(--accent-grass));
+  --color-accent-storm: rgb(var(--accent-storm));
+}

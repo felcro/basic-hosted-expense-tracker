@@ -1,105 +1,44 @@
-Default to using Bun instead of Node.js.
+# @basic-hosted-expense-tracker/server
 
-- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
-- Use `bun test` instead of `jest` or `vitest`
-- Use `bun build <file.html|file.ts|file.css>` instead of `webpack` or `esbuild`
-- Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`
-- Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`
-- Use `bunx <package> <command>` instead of `npx <package> <command>`
-- Bun automatically loads .env, so don't use dotenv.
+Hono API on `Bun.serve()`. Consumes `@basic-hosted-expense-tracker/db` (Postgres/Drizzle) and `@basic-hosted-expense-tracker/shared` (Zod schemas). Also serves `apps/app`'s built web output as static files.
 
-## APIs
+## Structure
 
-- `Bun.serve()` supports WebSockets, HTTPS, and routes. Don't use `express`.
-- `bun:sqlite` for SQLite. Don't use `better-sqlite3`.
-- `Bun.redis` for Redis. Don't use `ioredis`.
-- `Bun.sql` for Postgres. Don't use `pg` or `postgres.js`.
-- `WebSocket` is built-in. Don't use `ws`.
-- Prefer `Bun.file` over `node:fs`'s readFile/writeFile
-- Bun.$`ls` instead of execa.
+- `index.ts` — package entry point; re-exports the Hono `server` instance and `ApiRoutes` type (consumed by `apps/app` for typed API calls, if wired up).
+- `serve.ts` — actual process entry point; calls `Bun.serve({ fetch: server.fetch, port })`. Run this, not `index.ts`, to start the server.
+- `src/server.ts` — builds the Hono app: middleware (`logger`, `cors`, `csrf` scoped to `/api/*`), route composition (`.route()`), `/health`, and static serving of `apps/app/dist` for every other path (SPA fallback via `serveStatic({ path: 'index.html' })`).
+- `src/routes/*.ts` — one file per route group, each a `new Hono()` instance composed into `server.ts` via `.route('/prefix', routeInstance)`. Follow this pattern for new route groups — don't add routes directly in `server.ts`.
+- `kinde.ts` — Kinde SDK client, cookie-based `sessionManager`, and the `getUser` Hono middleware that gates a route behind authentication.
 
-## Testing
+## Scripts
 
-Use `bun test` to run tests.
+- `bun run server` — `bun serve.ts`
+- `bun run devserver` — `bun --watch serve.ts`
 
-```ts#index.test.ts
-import { test, expect } from "bun:test";
+## Auth (Kinde)
 
-test("hello world", () => {
-  expect(1).toBe(1);
-});
-```
+- `getUser` (from `kinde.ts`) is Hono middleware — add it as a handler arg (e.g. `.get('/', getUser, async (c) => ...)`) to require auth on a route. It sets `c.var.user` (typed `UserType`) and returns 401 if the session is invalid.
+- Session state lives in httpOnly cookies (`id_token`, `access_token`, `refresh_token`), not a server-side session store.
+- `src/routes/auth.ts` implements the full flow: `/login`, `/register`, `/callback`, `/logout`, `/me`.
+- Mobile deep-link redirect: `/login`/`/register` accept an `app_redirect` query param (must start with `expenseapp://`), stashed in a cookie and consumed in `/callback` to redirect back into the app after auth completes on web.
 
-## Frontend
+## Adding a route
 
-Use HTML imports with `Bun.serve()`. Don't use `vite`. HTML imports fully support React, CSS, Tailwind.
+1. Create or extend a file in `src/routes/`, exporting a `new Hono()` chain.
+2. Wire it into `apiRoutes` in `src/server.ts` via `.route('/prefix', yourRoute)`.
+3. Validate request bodies with `zValidator` against schemas from `@basic-hosted-expense-tracker/shared` — don't hand-roll validation or use `@basic-hosted-expense-tracker/db`'s Drizzle-generated schemas for this (see `packages/db/CLAUDE.md`'s "two Zod schema layers" note).
 
-Server:
+`expenses.ts` is the reference implementation — copy its shape for a new per-user resource: `getUser` for auth, `zValidator('json', schema)` from `packages/shared` for the POST body, then `insertXSchema` from `packages/db` to validate the full row before insert, `and(eq(table.userId, user.id), eq(table.id, id))` to scope reads/deletes to the authenticated user.
 
-```ts#index.ts
-import index from "./index.html"
+## Environment variables
 
-Bun.serve({
-  routes: {
-    "/": index,
-    "/api/users/:id": {
-      GET: (req) => {
-        return new Response(JSON.stringify({ id: req.params.id }));
-      },
-    },
-  },
-  // optional websocket support
-  websocket: {
-    open: (ws) => {
-      ws.send("Hello, world!");
-    },
-    message: (ws, message) => {
-      ws.send(message);
-    },
-    close: (ws) => {
-      // handle close
-    }
-  },
-  development: {
-    hmr: true,
-    console: true,
-  }
-})
-```
+Declared in `env.d.ts`, all typed `string | undefined` (never asserted non-null by the type system — several call sites use `!` to assert non-null, e.g. `kinde.ts`'s `authDomain`/`clientId`/`redirectURL`, so a missing value fails at runtime, not typecheck time):
 
-HTML files can import .tsx, .jsx or .js files directly and Bun's bundler will transpile & bundle automatically. `<link>` tags can point to stylesheets and Bun's CSS bundler will bundle.
+- `PORT` — defaults to `3000` if unset (`index.ts`).
+- `ALLOWED_ORIGINS` — comma-separated list, used for both CORS and CSRF origin checks in `src/server.ts`.
+- `APP_URL` — web fallback redirect after `/callback` if no mobile `app_redirect` cookie is present.
+- `KINDE_DOMAIN`, `KINDE_CLIENT_ID`, `KINDE_CLIENT_SECRET`, `KINDE_REDIRECT_URI`, `KINDE_LOGOUT_REDIRECT_URI` — Kinde app config.
+- `COOKIE_SAME_SITE` — set to `"None"` to use `SameSite=None` on session cookies (needed cross-site); anything else (including unset) uses `Lax`.
+- `DATABASE_URL` — see `packages/db/CLAUDE.md`.
 
-```html#index.html
-<html>
-  <body>
-    <h1>Hello, world!</h1>
-    <script type="module" src="./frontend.tsx"></script>
-  </body>
-</html>
-```
-
-With the following `frontend.tsx`:
-
-```tsx#frontend.tsx
-import React from "react";
-import { createRoot } from "react-dom/client";
-
-// import .css files directly and it works
-import './index.css';
-
-const root = createRoot(document.body);
-
-export default function Frontend() {
-  return <h1>Hello, world!</h1>;
-}
-
-root.render(<Frontend />);
-```
-
-Then, run index.ts
-
-```sh
-bun --hot ./index.ts
-```
-
-For more information, read the Bun API docs in `node_modules/bun-types/docs/**.mdx`.
+Per the repo root `CLAUDE.md`: never read `.env` files directly. Ask the user for values if needed for debugging.

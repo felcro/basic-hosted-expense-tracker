@@ -13,6 +13,7 @@ export const expenseSchema = z.object({
   amount: z.string().regex(/^\d+(\.\d{1,2})?$/, {
     message: 'Amount must be a valid monetary value',
   }),
+  date: z.string(),
   createdAt: z.iso.datetime().nullable(),
 })
 
@@ -24,3 +25,9 @@ export const createExpenseSchema = expenseSchema.omit({
 
 export type Expense = z.infer<typeof expenseSchema>
 export type PostExpense = z.infer<typeof createExpenseSchema>
+
+export const defaultPostExpenseValues: PostExpense = {
+  title: '',
+  amount: '',
+  date: new Date().toISOString(),
+}
