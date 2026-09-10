@@ -13,7 +13,7 @@ export default defineConfig({
   ignorePatterns: [
     'dist/',
     'node_modules/',
-    '**/app/components/ui/**',
+    // '**/app/components/ui/**',
     '**/db/drizzle/**',
   ],
   jsPlugins: [

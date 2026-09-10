@@ -15,6 +15,7 @@ export const script = (mode: string) => {
     documentElement.classList.add(theme)
     documentElement.style.colorScheme = theme
   } catch (error) {
+    // oxlint-disable-next-line no-console
     console.error(error)
   }
 }
