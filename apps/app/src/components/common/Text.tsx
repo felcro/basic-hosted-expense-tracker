@@ -14,7 +14,7 @@ export function LinkText({ href, label }: LinkTextProps) {
       <Text
         numberOfLines={1}
         style={{
-          color: theme.colors.accents.storm,
+          color: theme.colors.accents.teal,
           textDecorationLine: 'underline',
         }}
       >

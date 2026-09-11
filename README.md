@@ -57,6 +57,8 @@ That being said, there are 3 edge cases where I relaxed this rule:
 
 I've found this approach to be the most beneficial, treating AI throughout this project as more like a coach. If I get AI to write all the code for me, how can I ever know what is right or wrong in the future?
 
+I've also used this project to skill up on good practice for CLAUDE.md files.
+
 Don't get me wrong, I think AI coding tools are very powerful and I don't shy away from their use case. I just didn't want to use them much here in a learning project.
 
 Also, coding is fun. Reviewing AI code is a lot less fun. So, I have had a lot more fun doing it this way 🙂

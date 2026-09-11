@@ -11,106 +11,106 @@
 @layer theme {
   :root {
     /* mapped from src/theme/themeTokens.ts lightColors */
-    --primary: 154 115 76; /* tint */
-    --primary-foreground: 252 250 248; /* background */
-    --card: 237 234 230; /* foreground (surface) */
-    --secondary: 236 232 228; /* dimmed */
-    --secondary-foreground: 27 20 12; /* typography */
-    --background: 252 250 248; /* background */
-    --popover: 237 234 230; /* foreground (surface) */
-    --popover-foreground: 27 20 12; /* typography */
-    --muted: 236 232 228; /* dimmed */
-    --muted-foreground: 27 20 12; /* typography (washed, alpha not representable here) */
-    --destructive: 255 121 121; /* accents.apple */
-    --foreground: 27 20 12; /* typography */
-    --border: 236 232 228; /* dimmed */
-    --input: 236 232 228; /* dimmed */
-    --ring: 30 55 153; /* link */
-    --accent: 27 20 12; /* activeTint */
-    --accent-foreground: 252 250 248; /* background */
-    --accent-banana: 246 229 141;
-    --accent-pumpkin: 255 190 118;
-    --accent-apple: 255 121 121;
-    --accent-grass: 186 220 88;
-    --accent-storm: 104 109 224;
+    --primary: 216 97 5; /* tint */
+    --primary-foreground: 251 250 247; /* background */
+    --card: 255 255 255; /* foreground (surface) */
+    --secondary: 238 242 245; /* dimmed */
+    --secondary-foreground: 21 26 31; /* typography */
+    --background: 251 250 247; /* background */
+    --popover: 255 255 255; /* foreground (surface) */
+    --popover-foreground: 21 26 31; /* typography */
+    --muted: 238 242 245; /* dimmed */
+    --muted-foreground: 21 26 31; /* typography (washed, alpha not representable here) */
+    --destructive: 218 43 42; /* accents.red */
+    --foreground: 21 26 31; /* typography */
+    --border: 238 242 245; /* dimmed */
+    --input: 238 242 245; /* dimmed */
+    --ring: 0 121 122; /* link */
+    --accent: 21 26 31; /* activeTint */
+    --accent-foreground: 251 250 247; /* background */
+    --accent-yellow: 246 229 141;
+    --accent-coral: 231 123 96;
+    --accent-red: 218 43 42;
+    --accent-lime: 186 220 88;
+    --accent-teal: 10 96 108;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
       /* mapped from src/theme/themeTokens.ts darkColors */
-      --primary: 201 173 146; /* tint */
-      --primary-foreground: 34 26 17; /* background */
-      --card: 51 38 24; /* foreground (surface) */
-      --secondary: 168 161 152; /* dimmed */
-      --secondary-foreground: 255 255 255; /* typography */
-      --background: 34 26 17; /* background */
-      --popover: 51 38 24; /* foreground (surface) */
-      --popover-foreground: 255 255 255; /* typography */
-      --muted: 168 161 152; /* dimmed */
-      --muted-foreground: 255 255 255; /* typography (washed, alpha not representable here) */
-      --destructive: 235 77 75; /* accents.apple */
-      --foreground: 255 255 255; /* typography */
-      --border: 168 161 152; /* dimmed */
-      --input: 168 161 152; /* dimmed */
-      --accent: 255 255 255; /* activeTint */
-      --accent-foreground: 34 26 17; /* background */
-      --ring: 12 36 97; /* link */
-      --accent-banana: 249 202 36;
-      --accent-pumpkin: 240 147 43;
-      --accent-apple: 235 77 75;
-      --accent-grass: 106 176 76;
-      --accent-storm: 72 52 212;
+      --primary: 243 130 48; /* tint */
+      --primary-foreground: 12 15 18; /* background */
+      --card: 20 24 27; /* foreground (surface) */
+      --secondary: 30 34 38; /* dimmed */
+      --secondary-foreground: 236 235 231; /* typography */
+      --background: 12 15 18; /* background */
+      --popover: 20 24 27; /* foreground (surface) */
+      --popover-foreground: 236 235 231; /* typography */
+      --muted: 30 34 38; /* dimmed */
+      --muted-foreground: 236 235 231; /* typography (washed, alpha not representable here) */
+      --destructive: 233 80 77; /* accents.red */
+      --foreground: 236 235 231; /* typography */
+      --border: 30 34 38; /* dimmed */
+      --input: 30 34 38; /* dimmed */
+      --accent: 236 235 231; /* activeTint */
+      --accent-foreground: 12 15 18; /* background */
+      --ring: 79 198 198; /* link */
+      --accent-yellow: 249 202 36;
+      --accent-coral: 218 110 90;
+      --accent-red: 233 80 77;
+      --accent-lime: 106 176 76;
+      --accent-teal: 47 142 159;
     }
   }
 
   :root.dark {
-    --primary: 201 173 146;
-    --primary-foreground: 34 26 17;
-    --card: 51 38 24;
-    --secondary: 168 161 152;
-    --secondary-foreground: 255 255 255;
-    --background: 34 26 17;
-    --popover: 51 38 24;
-    --popover-foreground: 255 255 255;
-    --muted: 168 161 152;
-    --muted-foreground: 255 255 255;
-    --destructive: 235 77 75;
-    --foreground: 255 255 255;
-    --border: 168 161 152;
-    --input: 168 161 152;
-    --accent: 255 255 255;
-    --accent-foreground: 34 26 17;
-    --ring: 12 36 97;
-    --accent-banana: 249 202 36;
-    --accent-pumpkin: 240 147 43;
-    --accent-apple: 235 77 75;
-    --accent-grass: 106 176 76;
-    --accent-storm: 72 52 212;
+    --primary: 243 130 48;
+    --primary-foreground: 12 15 18;
+    --card: 20 24 27;
+    --secondary: 30 34 38;
+    --secondary-foreground: 236 235 231;
+    --background: 12 15 18;
+    --popover: 20 24 27;
+    --popover-foreground: 236 235 231;
+    --muted: 30 34 38;
+    --muted-foreground: 236 235 231;
+    --destructive: 233 80 77;
+    --foreground: 236 235 231;
+    --border: 30 34 38;
+    --input: 30 34 38;
+    --accent: 236 235 231;
+    --accent-foreground: 12 15 18;
+    --ring: 79 198 198;
+    --accent-yellow: 249 202 36;
+    --accent-coral: 218 110 90;
+    --accent-red: 233 80 77;
+    --accent-lime: 106 176 76;
+    --accent-teal: 47 142 159;
   }
 
   :root.light {
-    --primary: 154 115 76;
-    --primary-foreground: 252 250 248;
-    --card: 237 234 230;
-    --secondary: 236 232 228;
-    --secondary-foreground: 27 20 12;
-    --background: 252 250 248;
-    --popover: 237 234 230;
-    --popover-foreground: 27 20 12;
-    --muted: 236 232 228;
-    --muted-foreground: 27 20 12;
-    --destructive: 255 121 121;
-    --foreground: 27 20 12;
-    --border: 236 232 228;
-    --input: 236 232 228;
-    --ring: 30 55 153;
-    --accent: 27 20 12;
-    --accent-foreground: 252 250 248;
-    --accent-banana: 246 229 141;
-    --accent-pumpkin: 255 190 118;
-    --accent-apple: 255 121 121;
-    --accent-grass: 186 220 88;
-    --accent-storm: 104 109 224;
+    --primary: 216 97 5;
+    --primary-foreground: 251 250 247;
+    --card: 255 255 255;
+    --secondary: 238 242 245;
+    --secondary-foreground: 21 26 31;
+    --background: 251 250 247;
+    --popover: 255 255 255;
+    --popover-foreground: 21 26 31;
+    --muted: 238 242 245;
+    --muted-foreground: 21 26 31;
+    --destructive: 218 43 42;
+    --foreground: 21 26 31;
+    --border: 238 242 245;
+    --input: 238 242 245;
+    --ring: 0 121 122;
+    --accent: 21 26 31;
+    --accent-foreground: 251 250 247;
+    --accent-yellow: 246 229 141;
+    --accent-coral: 231 123 96;
+    --accent-red: 218 43 42;
+    --accent-lime: 186 220 88;
+    --accent-teal: 10 96 108;
   }
 }
 
@@ -132,9 +132,9 @@
   --color-ring: rgb(var(--ring));
   --color-accent: rgb(var(--accent));
   --color-accent-foreground: rgb(var(--accent-foreground));
-  --color-accent-banana: rgb(var(--accent-banana));
-  --color-accent-pumpkin: rgb(var(--accent-pumpkin));
-  --color-accent-apple: rgb(var(--accent-apple));
-  --color-accent-grass: rgb(var(--accent-grass));
-  --color-accent-storm: rgb(var(--accent-storm));
+  --color-accent-yellow: rgb(var(--accent-yellow));
+  --color-accent-coral: rgb(var(--accent-coral));
+  --color-accent-red: rgb(var(--accent-red));
+  --color-accent-lime: rgb(var(--accent-lime));
+  --color-accent-teal: rgb(var(--accent-teal));
 }

@@ -6,6 +6,10 @@ Bun workspace monorepo.
 
 YOU MUST NEVER access any .env files, as these are secrets. Environment variable names are defined in the respective package CLAUDE.md files. If the values in .env are required for debugging at any point, ALWAYS ask the user to manually provide them first.
 
+## Problem Solving
+
+For editor/tooling/config issues (VSCode, extensions, build tools), search online early rather than reasoning from internals or logs alone — these are usually documented, known issues with existing fixes. Don't wait until stuck after several failed attempts; check for a known fix before diagnosing from scratch.
+
 ## Structure
 
 - `apps/app` — Expo/React Native mobile app (see `apps/app/CLAUDE.md`)
