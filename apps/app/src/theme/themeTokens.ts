@@ -29,7 +29,7 @@ export const lightColors = {
   foreground: 'rgb(255, 255, 255)',
   typography: 'rgb(21, 26, 31)',
   typographyWashed: 'rgba(21, 26, 31, 0.6)',
-  dimmed: 'rgb(238, 242, 245)',
+  dimmed: 'rgb(230, 230, 230)',
   tint: 'rgb(216, 97, 5)',
   activeTint: 'rgb(21, 26, 31)',
   link: 'rgb(0, 121, 122)',
@@ -38,13 +38,13 @@ export const lightColors = {
     coral: 'rgb(231, 123, 96)',
     red: 'rgb(218, 43, 42)',
     lime: 'rgb(186, 220, 88)',
-    teal: 'rgb(10, 96, 108)',
+    teal: 'rgb(55, 159, 149)',
   },
 } as const
 
 export const darkColors = {
-  background: 'rgb(12, 15, 18)',
-  foreground: 'rgb(20, 24, 27)',
+  background: 'rgb(22, 22, 22)',
+  foreground: 'rgb(30, 30, 30)',
   typography: 'rgb(236, 235, 231)',
   typographyWashed: 'rgba(236, 235, 231, 0.6)',
   dimmed: 'rgb(30, 34, 38)',
@@ -56,7 +56,7 @@ export const darkColors = {
     coral: 'rgb(218, 110, 90)',
     red: 'rgb(233, 80, 77)',
     lime: 'rgb(106, 176, 76)',
-    teal: 'rgb(47, 142, 159)',
+    teal: 'rgb(56, 170, 159)',
   },
 } as const
 

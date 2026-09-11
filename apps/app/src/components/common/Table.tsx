@@ -18,6 +18,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   allCells: {
     paddingHorizontal: theme.gap(1),
+    borderColor: theme.colors.accents.coral,
   },
   cellLeftBorders: {
     borderLeftWidth: 1,
@@ -25,6 +26,9 @@ const styles = StyleSheet.create((theme) => ({
   },
   title: {
     paddingVertical: theme.gap(2),
+  },
+  borders: {
+    borderColor: `${theme.colors.dimmed}!important`,
   },
 }))
 
@@ -65,7 +69,7 @@ export function Table<T extends Id>({
 
   return (
     <DataTable style={styles.table}>
-      <DataTableHeader>
+      <DataTableHeader style={styles.borders}>
         {resolvedColumns.map((column, i) => {
           const colName = String(column)
           return (
@@ -91,7 +95,7 @@ export function Table<T extends Id>({
         </DataTableRow>
       ) : (
         data.slice(from, to).map((row) => (
-          <DataTableRow key={row?.id}>
+          <DataTableRow key={row?.id} style={styles.borders}>
             {resolvedColumns.map((col) => {
               // Include this commented out code if cell borders are desired.
               // const firstCell = i === 0 // Remember to expose the 2nd arg 'i' in the callbackk fn

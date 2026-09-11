@@ -10,12 +10,7 @@ export default defineConfig({
     es2024: true,
     node: true,
   },
-  ignorePatterns: [
-    'dist/',
-    'node_modules/',
-    // '**/app/components/ui/**',
-    '**/db/drizzle/**',
-  ],
+  ignorePatterns: ['dist/', 'node_modules/', '**/db/drizzle/**'],
   jsPlugins: [
     '@nkzw/eslint-plugin',
     'eslint-plugin-no-only-tests',

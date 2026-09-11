@@ -14,17 +14,17 @@
     --primary: 216 97 5; /* tint */
     --primary-foreground: 251 250 247; /* background */
     --card: 255 255 255; /* foreground (surface) */
-    --secondary: 238 242 245; /* dimmed */
+    --secondary: 230, 230, 230; /* dimmed */
     --secondary-foreground: 21 26 31; /* typography */
     --background: 251 250 247; /* background */
     --popover: 255 255 255; /* foreground (surface) */
     --popover-foreground: 21 26 31; /* typography */
-    --muted: 238 242 245; /* dimmed */
+    --muted: 230, 230, 230; /* dimmed */
     --muted-foreground: 21 26 31; /* typography (washed, alpha not representable here) */
     --destructive: 218 43 42; /* accents.red */
     --foreground: 21 26 31; /* typography */
-    --border: 238 242 245; /* dimmed */
-    --input: 238 242 245; /* dimmed */
+    --border: 230, 230, 230; /* dimmed */
+    --input: 230, 230, 230; /* dimmed */
     --ring: 0 121 122; /* link */
     --accent: 21 26 31; /* activeTint */
     --accent-foreground: 251 250 247; /* background */
@@ -32,19 +32,19 @@
     --accent-coral: 231 123 96;
     --accent-red: 218 43 42;
     --accent-lime: 186 220 88;
-    --accent-teal: 10 96 108;
+    --accent-teal: 55 159 149;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
       /* mapped from src/theme/themeTokens.ts darkColors */
       --primary: 243 130 48; /* tint */
-      --primary-foreground: 12 15 18; /* background */
-      --card: 20 24 27; /* foreground (surface) */
+      --primary-foreground: 22, 22, 22; /* background */
+      --card: 30, 30, 30; /* foreground (surface) */
       --secondary: 30 34 38; /* dimmed */
       --secondary-foreground: 236 235 231; /* typography */
-      --background: 12 15 18; /* background */
-      --popover: 20 24 27; /* foreground (surface) */
+      --background: 22, 22, 22; /* background */
+      --popover: 30, 30, 30; /* foreground (surface) */
       --popover-foreground: 236 235 231; /* typography */
       --muted: 30 34 38; /* dimmed */
       --muted-foreground: 236 235 231; /* typography (washed, alpha not representable here) */
@@ -53,13 +53,13 @@
       --border: 30 34 38; /* dimmed */
       --input: 30 34 38; /* dimmed */
       --accent: 236 235 231; /* activeTint */
-      --accent-foreground: 12 15 18; /* background */
+      --accent-foreground: 22, 22, 22; /* background */
       --ring: 79 198 198; /* link */
       --accent-yellow: 249 202 36;
       --accent-coral: 218 110 90;
       --accent-red: 233 80 77;
       --accent-lime: 106 176 76;
-      --accent-teal: 47 142 159;
+      --accent-teal: 56, 170, 159;
     }
   }
 
@@ -85,24 +85,24 @@
     --accent-coral: 218 110 90;
     --accent-red: 233 80 77;
     --accent-lime: 106 176 76;
-    --accent-teal: 47 142 159;
+    --accent-teal: 56, 170, 159;
   }
 
   :root.light {
     --primary: 216 97 5;
     --primary-foreground: 251 250 247;
     --card: 255 255 255;
-    --secondary: 238 242 245;
+    --secondary: 230, 230, 230;
     --secondary-foreground: 21 26 31;
     --background: 251 250 247;
     --popover: 255 255 255;
     --popover-foreground: 21 26 31;
-    --muted: 238 242 245;
+    --muted: 230, 230, 230;
     --muted-foreground: 21 26 31;
     --destructive: 218 43 42;
     --foreground: 21 26 31;
-    --border: 238 242 245;
-    --input: 238 242 245;
+    --border: 230, 230, 230;
+    --input: 230, 230, 230;
     --ring: 0 121 122;
     --accent: 21 26 31;
     --accent-foreground: 251 250 247;
@@ -110,7 +110,7 @@
     --accent-coral: 231 123 96;
     --accent-red: 218 43 42;
     --accent-lime: 186 220 88;
-    --accent-teal: 10 96 108;
+    --accent-teal: 55 159 149;
   }
 }
 

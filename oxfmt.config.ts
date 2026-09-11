@@ -6,12 +6,7 @@ export default defineConfig({
   semi: false,
   singleQuote: true,
   trailingComma: 'all',
-  ignorePatterns: [
-    'dist/**',
-    'node_modules/**',
-    // '**/app/components/ui/**',
-    '**/db/drizzle/**',
-  ],
+  ignorePatterns: ['dist/**', 'node_modules/**', '**/db/drizzle/**'],
   printWidth: 80,
   embeddedLanguageFormatting: 'auto',
   sortImports: {
