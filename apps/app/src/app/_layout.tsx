@@ -1,3 +1,4 @@
+import { KindeAuthProvider } from '@kinde/expo'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Stack } from 'expo-router'
 import { StrictMode, useState } from 'react'
@@ -20,19 +21,29 @@ export default function Root() {
 
   return (
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <SessionProvider>
-          <PaperProvider theme={paperTheme}>
-            <GluestackUIProvider mode={rt.themeName}>
-              <SplashScreenController />
-              <Stack>
-                <Stack.Screen name="(app)" options={{ headerShown: false }} />
-                <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-              </Stack>
-            </GluestackUIProvider>
-          </PaperProvider>
-        </SessionProvider>
-      </QueryClientProvider>
+      <KindeAuthProvider
+        config={{
+          domain: process.env.EXPO_PUBLIC_KINDE_DOMAIN,
+          clientId: process.env.EXPO_PUBLIC_KINDE_CLIENT_ID,
+        }}
+      >
+        <QueryClientProvider client={queryClient}>
+          <SessionProvider>
+            <PaperProvider theme={paperTheme}>
+              <GluestackUIProvider mode={rt.themeName}>
+                <SplashScreenController />
+                <Stack>
+                  <Stack.Screen name="(app)" options={{ headerShown: false }} />
+                  <Stack.Screen
+                    name="sign-in"
+                    options={{ headerShown: false }}
+                  />
+                </Stack>
+              </GluestackUIProvider>
+            </PaperProvider>
+          </SessionProvider>
+        </QueryClientProvider>
+      </KindeAuthProvider>
     </StrictMode>
   )
 }

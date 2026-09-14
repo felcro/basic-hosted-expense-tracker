@@ -1,6 +1,7 @@
 import type { PostExpense } from '@basic-hosted-expense-tracker/shared'
 
 import { type ApiRoutes } from '@basic-hosted-expense-tracker/server'
+import { getRawToken } from '@kinde/expo/utils'
 import { queryOptions } from '@tanstack/react-query'
 import { hc } from 'hono/client'
 import { Platform } from 'react-native'
@@ -19,15 +20,9 @@ import { Platform } from 'react-native'
 //
 // Web stays local — Metro serves the app from :8081 and the API runs on :3000,
 // so it's cross-origin and needs naming explicitly; the server does not proxy.
-//
-// Set EXPO_PUBLIC_API_URL in apps/app/.env to override both. That value is
-// inlined at bundle time, so restart with `bunx expo start --clear` to change it.
-const deployedApiUrl =
-  'https://app-0a0cf65d-c6fa-4bb5-86e8-0df9c595b8dc.cleverapps.io'
-
 const devApiUrl = Platform.select({
-  android: deployedApiUrl,
-  ios: deployedApiUrl,
+  android: process.env.EXPO_PUBLIC_NATIVE_DEV_API_URL,
+  ios: process.env.EXPO_PUBLIC_NATIVE_DEV_API_URL,
   default: 'http://localhost:3000',
 })
 
@@ -37,9 +32,26 @@ const devApiUrl = Platform.select({
 export const apiUrl =
   process.env.EXPO_PUBLIC_API_URL ?? (__DEV__ ? devApiUrl : '')
 
+// Native has no cookie jar shared with the auth browser sheet, so the Kinde
+// access token is read from secure storage and sent as a bearer header instead.
+// Web keeps using the session cookie the server sets. `getRawToken` returns
+// null until the user signs in, in which case the request goes out unauthorised
+// and the server answers 401 — the same as an expired cookie on web.
+async function authHeaders(): Promise<Record<string, string>> {
+  if (Platform.OS === 'web') {
+    return {}
+  }
+  const token = await getRawToken('accessToken')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 const client = hc<ApiRoutes>(apiUrl || '/', {
-  fetch: (input: RequestInfo | URL, init?: RequestInit) =>
-    fetch(input, { ...init, credentials: 'include' }),
+  fetch: async (input: RequestInfo | URL, init?: RequestInit) =>
+    fetch(input, {
+      ...init,
+      credentials: 'include',
+      headers: { ...init?.headers, ...(await authHeaders()) },
+    }),
 })
 
 export const api = client.api

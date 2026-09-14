@@ -37,7 +37,8 @@ Declared in `env.d.ts`, all typed `string | undefined` (never asserted non-null 
 - `PORT` — defaults to `3000` if unset (`index.ts`).
 - `ALLOWED_ORIGINS` — comma-separated list, used for both CORS and CSRF origin checks in `src/server.ts`.
 - `APP_URL` — web fallback redirect after `/callback` if no mobile `app_redirect` cookie is present.
-- `KINDE_DOMAIN`, `KINDE_CLIENT_ID`, `KINDE_CLIENT_SECRET`, `KINDE_REDIRECT_URI`, `KINDE_LOGOUT_REDIRECT_URI` — Kinde app config.
+- `KINDE_DOMAIN`, `KINDE_CLIENT_ID`, `KINDE_CLIENT_SECRET`, `KINDE_REDIRECT_URI`, `KINDE_LOGOUT_REDIRECT_URI` — Kinde app config (the back-end application, used by the web cookie flow).
+- `KINDE_API_AUDIENCE` — the audience of the API registered in Kinde (e.g. `expense-api`). `getUser` requires a bearer token to name it in `aud`, so a token minted for a different API is rejected. If unset, the `aud` check is skipped and any correctly-signed token from this tenant is accepted — set it.
 - `COOKIE_SAME_SITE` — set to `"None"` to use `SameSite=None` on session cookies (needed cross-site); anything else (including unset) uses `Lax`.
 - `DATABASE_URL` — see `packages/db/CLAUDE.md`.
 

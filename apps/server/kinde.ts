@@ -4,6 +4,8 @@ import {
   type SessionManager,
   type UserType,
 } from '@kinde-oss/kinde-typescript-sdk'
+import { jwtDecoder } from '@kinde/jwt-decoder'
+import { validateToken } from '@kinde/jwt-validator'
 import { type Context } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
@@ -52,8 +54,67 @@ type Env = {
   }
 }
 
+const kindeDomain = process.env.KINDE_DOMAIN!
+const apiAudience = process.env.KINDE_API_AUDIENCE
+
+/**
+ * Native clients authenticate with a Kinde access token in the Authorization
+ * header rather than a session cookie — the auth browser sheet's cookie jar is
+ * not the app's, so a cookie set during login never reaches the app's fetch.
+ *
+ * Returns a `UserType` built from the token's claims, or null if the header is
+ * absent or the token fails verification. Only `id` is populated: an access
+ * token carries authorization claims, not identity ones (email and name live on
+ * the id token, which stays on the device). `/api/me` reports the rest as null.
+ */
+async function userFromBearerToken(c: Context): Promise<UserType | null> {
+  const header = c.req.header('Authorization')
+  const token = header?.match(/^Bearer (.+)$/)?.[1]
+  if (!token) {
+    return null
+  }
+
+  // Verifies the signature against the domain's JWKS, and that it hasn't expired.
+  const { valid } = await validateToken({ token, domain: kindeDomain })
+  if (!valid) {
+    return null
+  }
+
+  const claims = jwtDecoder<{
+    sub?: string
+    iss?: string
+    aud?: Array<string>
+  }>(token)
+
+  // Signature alone only proves Kinde issued this token, not that it was issued
+  // for us: check it came from our tenant and names our API in `aud`.
+  if (!claims?.sub || claims.iss !== kindeDomain) {
+    return null
+  }
+  if (apiAudience && !claims.aud?.includes(apiAudience)) {
+    return null
+  }
+
+  return {
+    id: claims.sub,
+    email: '',
+    given_name: '',
+    family_name: '',
+    picture: null,
+    phone: '',
+  }
+}
+
 export const getUser = createMiddleware<Env>(async (c, next) => {
   try {
+    const bearerUser = await userFromBearerToken(c)
+    if (bearerUser) {
+      c.set('user', bearerUser)
+      await next()
+      return
+    }
+
+    // No usable bearer token — fall back to the cookie session used by web.
     const manager = sessionManager(c)
     const isAuthenticated = await kindeClient.isAuthenticated(manager)
 

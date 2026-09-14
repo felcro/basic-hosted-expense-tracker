@@ -39,5 +39,17 @@ export const authRoute = new Hono()
   })
   .get('/me', getUser, async (c) => {
     const user = c.var.user
-    return c.json({ user })
+    // Identity fields are nullable because native authenticates with an access
+    // token, which carries no email or name claims (see `getUser`). Typing them
+    // as nullable makes clients handle the case rather than render "undefined".
+    return c.json({
+      user: {
+        id: user.id,
+        email: user.email || null,
+        given_name: user.given_name || null,
+        family_name: user.family_name || null,
+        picture: user.picture || null,
+        phone: user.phone || null,
+      },
+    })
   })

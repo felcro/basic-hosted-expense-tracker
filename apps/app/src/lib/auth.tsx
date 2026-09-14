@@ -1,14 +1,28 @@
+import { useKindeAuth } from '@kinde/expo'
 import { useQuery } from '@tanstack/react-query'
 import { createContext, useContext, type ReactNode } from 'react'
+import { Platform } from 'react-native'
 
 import { userQueryOptions } from './api'
 
 function useSessionQuery() {
-  const { data: user, isLoading } = useQuery(userQueryOptions)
+  // On native the bearer token is read from secure storage, which is async and
+  // not ready on first render. Querying before then sends an unauthenticated
+  // request and caches a 401, so hold the query until Kinde has loaded — and
+  // keep reporting `isLoading` meanwhile, or the route guards would redirect to
+  // sign-in before the stored session has been read.
+  const kinde = useKindeAuth()
+  const kindeLoading = Platform.OS !== 'web' && kinde.isLoading
+
+  const { data: user, isLoading } = useQuery({
+    ...userQueryOptions,
+    enabled: !kindeLoading,
+  })
+
   return {
     user: user ?? null,
     isAuthenticated: !!user,
-    isLoading,
+    isLoading: kindeLoading || isLoading,
   }
 }
 
