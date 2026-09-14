@@ -10,6 +10,7 @@ import {
   DataTableTitle,
 } from '../rnp-unistyles/DataTable'
 import { SkeletonBone } from './SkeletonBone'
+import { TableDeleteButton } from './TableDeleteButton'
 
 const styles = StyleSheet.create((theme) => ({
   table: {
@@ -19,10 +20,6 @@ const styles = StyleSheet.create((theme) => ({
   allCells: {
     paddingHorizontal: theme.gap(1),
     borderColor: theme.colors.accents.coral,
-  },
-  cellLeftBorders: {
-    borderLeftWidth: 1,
-    borderColor: theme.colors.dimmed,
   },
   title: {
     paddingVertical: theme.gap(2),
@@ -41,12 +38,16 @@ export type TableProps<T extends Id> = {
   dataPending?: boolean
   /** Provide the columns to render the header ahead of the table data */
   columns?: Array<keyof T>
+  loadingCachedData?: Partial<T>
+  deletable?: boolean
 }
 
 export function Table<T extends Id>({
   data,
   columns,
   dataPending,
+  loadingCachedData,
+  deletable = false,
 }: TableProps<T>) {
   const { theme } = useUnistyles()
 
@@ -83,7 +84,36 @@ export function Table<T extends Id>({
             </DataTableTitle>
           )
         })}
+        {deletable && (
+          <DataTableTitle
+            key="delete"
+            style={[styles.allCells, styles.title]}
+            textStyle={theme.fonts.labelMedium}
+          >
+            Delete
+          </DataTableTitle>
+        )}
       </DataTableHeader>
+
+      {loadingCachedData && (
+        <DataTableRow key={loadingCachedData.id} style={styles.borders}>
+          {resolvedColumns.map((col) => {
+            return (
+              <DataTableCell
+                key={String(col)}
+                numeric={typeof loadingCachedData[col] === 'number'}
+                style={[styles.allCells]}
+              >
+                {loadingCachedData[col] ? (
+                  String(loadingCachedData[col])
+                ) : (
+                  <SkeletonBone width="60%" height={12} />
+                )}
+              </DataTableCell>
+            )
+          })}
+        </DataTableRow>
+      )}
 
       {dataPending ? (
         <DataTableRow key={0}>
@@ -97,20 +127,21 @@ export function Table<T extends Id>({
         data.slice(from, to).map((row) => (
           <DataTableRow key={row?.id} style={styles.borders}>
             {resolvedColumns.map((col) => {
-              // Include this commented out code if cell borders are desired.
-              // const firstCell = i === 0 // Remember to expose the 2nd arg 'i' in the callbackk fn
               return (
                 <DataTableCell
                   key={String(col)}
                   numeric={typeof row[col] === 'number'}
-                  style={[
-                    styles.allCells /*!firstCell && styles.cellLeftBorders*/,
-                  ]}
+                  style={styles.allCells}
                 >
                   {String(row[col])}
                 </DataTableCell>
               )
             })}
+            {deletable && (
+              <DataTableCell key="delete" style={styles.allCells}>
+                <TableDeleteButton id={Number(row.id)} />
+              </DataTableCell>
+            )}
           </DataTableRow>
         ))
       )}

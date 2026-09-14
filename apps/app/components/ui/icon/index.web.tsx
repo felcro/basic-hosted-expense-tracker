@@ -1,3 +1,7 @@
+// @ts-nocheck
+// TODO: remove the above line when https://github.com/gluestack/gluestack-ui/issues/3438
+// is resolved.
+
 import { createIcon, PrimitiveIcon, Svg } from '@gluestack-ui/core/icon/creator'
 import { tva, type VariantProps } from '@gluestack-ui/utils/nativewind-utils'
 import React from 'react'

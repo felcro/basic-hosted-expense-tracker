@@ -45,11 +45,11 @@ export const lightColors = {
 export const darkColors = {
   background: 'rgb(22, 22, 22)',
   foreground: 'rgb(30, 30, 30)',
-  typography: 'rgb(236, 235, 231)',
+  typography: 'rgb(240, 240, 240)',
   typographyWashed: 'rgba(236, 235, 231, 0.6)',
   dimmed: 'rgb(30, 34, 38)',
   tint: 'rgb(243, 130, 48)',
-  activeTint: 'rgb(236, 235, 231)',
+  activeTint: 'rgb(240, 240, 240)',
   link: 'rgb(79, 198, 198)',
   accents: {
     yellow: 'rgb(249, 202, 36)',

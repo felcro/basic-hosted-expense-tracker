@@ -1,6 +1,7 @@
 import type { ComponentProps } from 'react'
 
 import { forwardRef } from 'react'
+import { Platform } from 'react-native'
 import { Text, TouchableRipple } from 'react-native-paper'
 import { StyleSheet, useUnistyles, withUnistyles } from 'react-native-unistyles'
 
@@ -10,14 +11,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.gap(2),
     alignItems: 'center',
     justifyContent: 'center',
-    //   variants: {
-    //     isFocussed: {
-    //       true: {
-    //         backgroundColor: theme.colors.tint,
-    //       },
-    //     },
-    //   },
-    // },
+    cursor: Platform.OS === 'web' ? 'pointer' : 'auto',
   },
 }))
 

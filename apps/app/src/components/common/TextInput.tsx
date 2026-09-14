@@ -24,7 +24,7 @@ const textStyles = TextStyleSheet.create({
 const styles = StyleSheet.create(() => ({
   container: {
     flexDirection: 'column',
-    minWidth: 280,
+    width: 300,
   },
 }))
 

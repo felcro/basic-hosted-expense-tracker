@@ -1,2 +1,2 @@
-export { db } from './src/database'
-export { expenses, insertExpensesSchema } from './src/db/schema/expenses'
+export * from './src/database'
+export * from './src/db/schema/expenses'

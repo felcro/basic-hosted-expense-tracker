@@ -4,7 +4,10 @@ import { useQuery } from '@tanstack/react-query'
 import { BaseView } from '../../components/common/BaseView'
 import { Table } from '../../components/common/Table'
 import { LinkText } from '../../components/common/Text'
-import { getExpensesQueryOptions } from '../../lib/api'
+import {
+  getAllExpensesQueryOptions,
+  loadingCreateExpenseQueryOptions,
+} from '../../lib/api'
 import { routes } from '../../lib/routes'
 
 export default function Expenses() {
@@ -12,7 +15,11 @@ export default function Expenses() {
     isPending: dataPending,
     error,
     data,
-  } = useQuery(getExpensesQueryOptions)
+  } = useQuery(getAllExpensesQueryOptions)
+
+  const { data: loadingCreateExpense } = useQuery(
+    loadingCreateExpenseQueryOptions,
+  )
 
   if (error) {
     return 'An error has occurred: ' + error.message
@@ -30,6 +37,8 @@ export default function Expenses() {
             })
             .keyof().options
         }
+        loadingCachedData={loadingCreateExpense?.expense}
+        deletable={true}
       />
       <LinkText href={routes.home.href} label="Home Page" />
     </BaseView>

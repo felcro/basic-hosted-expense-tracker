@@ -8,7 +8,19 @@ import React from 'react'
 import { Pressable, ScrollView, Text, View } from 'react-native'
 import Animated, { FadeOut, ZoomIn } from 'react-native-reanimated'
 
-const AnimatedView = Animated.createAnimatedComponent(ScrollView)
+// The inferred type of createAnimatedComponent(ScrollView) is what makes the
+// TS language server hang on any file importing this one (gluestack-ui#3438).
+// Annotating the result cuts the inference chain at its root. Note that
+// reanimated's own AnimatedProps<T> reintroduces the blowup, so the entering/
+// exiting props are declared directly.
+const AnimatedView = Animated.createAnimatedComponent(
+  ScrollView,
+) as React.ComponentType<
+  React.ComponentProps<typeof ScrollView> & {
+    entering?: React.ComponentProps<typeof Animated.View>['entering']
+    exiting?: React.ComponentProps<typeof Animated.View>['exiting']
+  }
+>
 
 const menuStyle = tva({
   base: 'rounded-md bg-popover text-popover-foreground border border-border p-1 shadow-hard-5 max-h-75 overflow-y-auto',

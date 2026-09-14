@@ -1,3 +1,5 @@
+import type { PostExpense } from '@basic-hosted-expense-tracker/shared'
+
 import { type ApiRoutes } from '@basic-hosted-expense-tracker/server'
 import { queryOptions } from '@tanstack/react-query'
 import { hc } from 'hono/client'
@@ -29,13 +31,13 @@ export const userQueryOptions = queryOptions({
   staleTime: Infinity,
 })
 
-const convertUTCToLocale = (date: string) =>
+export const convertUTCToLocaleDate = (date: string) =>
   new Intl.DateTimeFormat(undefined, {
     dateStyle: 'short',
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   }).format(new Date(date))
 
-async function getExpenses() {
+async function getAllExpenses() {
   const res = await api.expenses.$get()
   if (!res.ok) {
     throw new Error('server error')
@@ -44,12 +46,45 @@ async function getExpenses() {
   return {
     expenses: data.expenses.map((expense) => ({
       ...expense,
-      date: convertUTCToLocale(expense.date),
+      date: convertUTCToLocaleDate(expense.date),
     })),
   }
 }
 
-export const getExpensesQueryOptions = queryOptions({
-  queryKey: ['get-expenses'],
-  queryFn: getExpenses,
+export const getAllExpensesQueryOptions = queryOptions({
+  queryKey: ['get-all-expenses'],
+  queryFn: getAllExpenses,
+  staleTime: 1000 * 60 * 5,
 })
+
+export async function createExpense(data: PostExpense) {
+  const res = await api.expenses.$post({ json: data })
+  if (!res.ok) {
+    throw new Error('server error')
+  }
+  const newExpense = await res.json()
+  return newExpense
+}
+
+export const loadingCreateExpenseQueryOptions = queryOptions<{
+  expense?: PostExpense
+}>({
+  queryKey: ['loading-create-expense'],
+  queryFn: async () => {
+    return {}
+  },
+  staleTime: Infinity,
+})
+
+export async function deleteExpense(id: number) {
+  const res = await api.expenses[':id{[0-9]+}'].$delete({
+    param: { id: id.toString() },
+  })
+
+  if (!res.ok) {
+    throw new Error(
+      'Server error encountered when trying to delete expense: ' +
+        id.toString(),
+    )
+  }
+}

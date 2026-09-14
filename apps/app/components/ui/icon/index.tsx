@@ -1,3 +1,7 @@
+// @ts-nocheck
+// TODO: remove the above line when https://github.com/gluestack/gluestack-ui/issues/3438
+// is resolved.
+
 import {
   createIcon,
   type IPrimitiveIcon,
