@@ -8,6 +8,7 @@ const styles = StyleSheet.create((theme) => ({
   baseView: {
     flex: 1,
     backgroundColor: theme.colors.background,
+    overflowY: 'scroll',
   },
   header: {
     position: 'relative',
