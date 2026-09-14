@@ -7,6 +7,7 @@ declare namespace NodeJS {
     KINDE_CLIENT_SECRET: string | undefined
     KINDE_REDIRECT_URI: string | undefined
     KINDE_LOGOUT_REDIRECT_URI: string | undefined
+    COOKIE_SAME_SITE: string | undefined
     DATABASE_URL: string | undefined
   }
 }

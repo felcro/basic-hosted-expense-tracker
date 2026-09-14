@@ -10,7 +10,11 @@ import { routes } from '../../lib/routes'
 export default function RootLayout() {
   const { isAuthenticated, isLoading } = useSession()
 
-  if (!isLoading && !isAuthenticated) {
+  if (isLoading) {
+    return null
+  }
+
+  if (!isAuthenticated) {
     return <Redirect href="/sign-in" />
   }
 

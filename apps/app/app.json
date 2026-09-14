@@ -12,7 +12,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.app"
+      "bundleIdentifier": "com.felixcrowther.expensetracker"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +22,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.app"
+      "package": "com.felixcrowther.expensetracker"
     },
     "web": {
       "favicon": "./assets/favicon.png",

@@ -7,7 +7,12 @@
    1. :root              — light defaults (all platforms)
    2. @media dark :root  — dark defaults; nativewind maps this to
                            Appearance.getColorScheme() on native.
-   3. :root.dark / :root.light — higher specificity for web class toggle. */
+   3. .dark / .light     — explicit override for the web class toggle
+                           (GluestackUIProvider adds the class to <html>).
+
+   .dark / .light must stay top-level inside @layer theme. Qualifying them as
+   :root.dark / :root.light throws "Class-qualified :root selectors are
+   unsupported on native" from react-native-css's compiler. */
 @layer theme {
   :root {
     /* mapped from src/theme/themeTokens.ts lightColors */
@@ -63,7 +68,7 @@
     }
   }
 
-  :root.dark {
+  .dark {
     --primary: 243 130 48;
     --primary-foreground: 12 15 18;
     --card: 20 24 27;
@@ -88,7 +93,7 @@
     --accent-teal: 56, 170, 159;
   }
 
-  :root.light {
+  .light {
     --primary: 216 97 5;
     --primary-foreground: 251 250 247;
     --card: 255 255 255;

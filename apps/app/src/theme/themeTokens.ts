@@ -1,8 +1,9 @@
 // Shared raw token values consumed by both react-native-unistyles
 // (unistyles.ts) and the gluestack-ui / NativeWind theme (global.css).
 // Edit values here, then mirror the hex -> "R G B" conversion into
-// global.css's :root / .dark / .light blocks by hand, since global.css is
-// static CSS and can't import this file directly.
+// global.css's :root, @media (prefers-color-scheme: dark), .dark and .light
+// blocks by hand, since global.css is static CSS and can't import this file
+// directly.
 
 export const fonts = {
   displayLarge: { fontSize: 57, lineHeight: 64, fontWeight: '400' },
