@@ -85,11 +85,17 @@ async function userFromBearerToken(c: Context): Promise<UserType | null> {
     sub?: string
     iss?: string
     aud?: Array<string>
+    exp?: number
   }>(token)
 
   // Signature alone only proves Kinde issued this token, not that it was issued
-  // for us: check it came from our tenant and names our API in `aud`.
+  // for us, nor that it is still current: `validateToken` above checks the
+  // signature and nothing else, so expiry, issuer and audience are all checked
+  // here. Without the `exp` check a leaked token would be accepted forever.
   if (!claims?.sub || claims.iss !== kindeDomain) {
+    return null
+  }
+  if (!claims.exp || claims.exp * 1000 <= Date.now()) {
     return null
   }
   if (apiAudience && !claims.aud?.includes(apiAudience)) {

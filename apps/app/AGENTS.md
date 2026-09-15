@@ -58,6 +58,10 @@ This app runs **two component libraries and two styling systems side by side**, 
 
 ### Theme tokens are duplicated on purpose, keep them in sync manually
 
+`global.css` defines the palette three times: `:root` (light defaults), `@media (prefers-color-scheme: dark) :root` (dark defaults, which NativeWind maps to `Appearance.getColorScheme()` on native), and top-level `.dark` / `.light` blocks inside `@layer theme` for the web class toggle (`GluestackUIProvider` adds the class to `<html>`; see `components/ui/gluestack-ui-provider/index.web.tsx`).
+
+**Keep `.dark` / `.light` top-level — never write them as `:root.dark` / `:root.light`.** A selector combining the `:root` pseudo-class with a class is rejected by `react-native-css`'s native compiler ("Class-qualified :root selectors are unsupported on native") and breaks Metro bundling on iOS and Android. This only surfaces on a native build; web bundles fine either way. Note the vendored `.agents/skills/gluestack-ui-v5/setup/SKILL.md` example has been corrected locally to match — re-vendoring that skill may reintroduce the broken form.
+
 `src/theme/themeTokens.ts` (hex colors, fonts, breakpoints) is the source of truth for the unistyles/Paper side. `global.css`'s CSS custom properties (`--primary`, `--background`, etc., as space-separated `R G B` triplets) are gluestack's copy of the same palette, mapped by _meaning_ not name (e.g. `tint` → `--primary`, `typography` → `--foreground`, `foreground` — a surface color in `themeTokens.ts` — → `--card`, not `--foreground`). There is no build step linking them and no single mapping table — each `global.css` variable has an inline comment naming its `themeTokens.ts` source. Changing a color means editing both files.
 
 ### `components/ui/*` is CLI-generated, but editing it is normal and expected

@@ -140,8 +140,12 @@ Create at project root. This replaces `tailwind.config.js` — all tokens are de
     }
   }
 
-  /* Web only: explicit class-based dark/light mode */
-  :root.dark {
+  /* Web only: explicit class-based dark/light mode.
+     Top-level inside @layer theme — NOT `:root.dark`. A selector combining the
+     :root pseudo-class with a class is rejected outright by react-native-css's
+     native compiler ("Class-qualified :root selectors are unsupported on
+     native"), which breaks the Metro bundle on iOS and Android. */
+  .dark {
     --primary: 255 245 245;
     --primary-foreground: 23 23 23;
     --card: 23 23 23;
@@ -161,7 +165,7 @@ Create at project root. This replaces `tailwind.config.js` — all tokens are de
     --ring: 115 115 115;
   }
 
-  :root.light {
+  .light {
     --primary: 23 23 23;
     --primary-foreground: 250 250 250;
     --card: 255 255 255;

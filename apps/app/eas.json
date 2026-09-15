@@ -8,19 +8,19 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://localhost:3000"
+        "EXPO_PUBLIC_API_URL": "https://app-0a0cf65d-c6fa-4bb5-86e8-0df9c595b8dc.cleverapps.io"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.yourdomain.com"
+        "EXPO_PUBLIC_API_URL": "https://app-0a0cf65d-c6fa-4bb5-86e8-0df9c595b8dc.cleverapps.io"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.yourdomain.com"
+        "EXPO_PUBLIC_API_URL": "https://app-0a0cf65d-c6fa-4bb5-86e8-0df9c595b8dc.cleverapps.io"
       }
     }
   },
