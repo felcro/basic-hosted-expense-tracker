@@ -46,12 +46,18 @@ async function authHeaders(): Promise<Record<string, string>> {
 }
 
 const client = hc<ApiRoutes>(apiUrl || '/', {
-  fetch: async (input: RequestInfo | URL, init?: RequestInit) =>
-    fetch(input, {
-      ...init,
-      credentials: 'include',
-      headers: { ...init?.headers, ...(await authHeaders()) },
-    }),
+  fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+    // Hono's client passes `init.headers` as a Headers instance, whose entries
+    // live behind an iterator rather than own properties — object-spreading it
+    // silently drops every header it set, and the resulting shape is rejected
+    // outright by Expo's native fetch (it wants List<Pair<String, String>>).
+    // Copy through the Headers constructor instead.
+    const headers = new Headers(init?.headers)
+    for (const [key, value] of Object.entries(await authHeaders())) {
+      headers.set(key, value)
+    }
+    return fetch(input, { ...init, credentials: 'include', headers })
+  },
 })
 
 export const api = client.api
