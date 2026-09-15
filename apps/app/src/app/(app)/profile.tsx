@@ -1,4 +1,5 @@
 import { useKindeAuth } from '@kinde/expo'
+import { getUserProfile } from '@kinde/expo/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Platform, View } from 'react-native'
 import { Button } from 'react-native-paper'
@@ -32,18 +33,34 @@ export default function Profile() {
 
   const { isPending, error, data } = useQuery(userQueryOptions)
 
+  // Identity claims (name, email, picture) live on the id token, which stays on
+  // the device — the server authenticates natively with the *access* token and
+  // so only knows the user's id (see /api/me). Read the local copy instead of
+  // sending the id token to the API just to have it echoed back.
+  const { data: localProfile } = useQuery({
+    queryKey: ['kinde-user-profile'],
+    queryFn: getUserProfile,
+    enabled: Platform.OS !== 'web',
+    staleTime: Infinity,
+  })
+
   if (error) {
     return 'not logged in ' + error.message
   }
 
-  // Identity claims live on the id token, which never leaves the device, so on
-  // native the server only knows the user's id (see /api/me). Fall back to the
-  // locally-decoded profile rather than rendering empty strings.
+  // Normalise the two sources to one shape: the server returns snake_case
+  // claims, `getUserProfile` returns camelCase.
   const user = data?.user
-  const fullName = [user?.given_name, user?.family_name]
+  const profile = {
+    givenName: user?.given_name ?? localProfile?.givenName,
+    familyName: user?.family_name ?? localProfile?.familyName,
+    email: user?.email ?? localProfile?.email,
+    picture: user?.picture ?? localProfile?.picture,
+  }
+  const fullName = [profile.givenName, profile.familyName]
     .filter(Boolean)
     .join(' ')
-  const displayName = fullName || user?.email || 'Signed in'
+  const displayName = fullName || profile.email || 'Signed in'
 
   return (
     <BaseView title="Profile">
@@ -55,13 +72,13 @@ export default function Profile() {
                 <AvatarFallbackText className="text-white">
                   {displayName}
                 </AvatarFallbackText>
-                {user?.picture && (
-                  <AvatarImage src={user.picture} alt={displayName} />
+                {profile.picture && (
+                  <AvatarImage src={profile.picture} alt={displayName} />
                 )}
               </Avatar>
               <VStack>
                 <Heading size="sm">{displayName}</Heading>
-                {user?.email && <Text size="sm">{user.email}</Text>}
+                {profile.email && <Text size="sm">{profile.email}</Text>}
               </VStack>
             </HStack>
           </View>

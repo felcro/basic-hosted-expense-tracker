@@ -9,7 +9,7 @@ import {
   CardContent,
   CardTitle,
 } from '../../components/rnp-unistyles/Card'
-import { api, throwIfUnauthorised } from '../../lib/api'
+import { getTotalSpentQueryOptions } from '../../lib/api'
 
 const styles = StyleSheet.create((theme) => ({
   screen: {
@@ -32,21 +32,8 @@ const styles = StyleSheet.create((theme) => ({
   },
 }))
 
-async function getTotalSpent() {
-  const res = await api.expenses['total-spent'].$get()
-  throwIfUnauthorised(res)
-  if (!res.ok) {
-    throw new Error('server error')
-  }
-  const data = await res.json()
-  return data
-}
-
 export default function Home() {
-  const { isPending, error, data } = useQuery({
-    queryKey: ['get-total-spent'],
-    queryFn: getTotalSpent,
-  })
+  const { isPending, error, data } = useQuery(getTotalSpentQueryOptions)
 
   if (error) {
     return 'An error has occurred: ' + error.message

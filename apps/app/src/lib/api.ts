@@ -72,7 +72,7 @@ function refreshOnce(): Promise<boolean> {
 // Web keeps using the session cookie the server sets. `getRawToken` returns
 // null until the user signs in, in which case the request goes out unauthorised
 // and the server answers 401 — the same as an expired cookie on web.
-async function authHeaders(): Promise<Record<string, string>> {
+export async function authHeaders(): Promise<Record<string, string>> {
   if (Platform.OS === 'web') {
     return {}
   }
@@ -170,6 +170,21 @@ export const getAllExpensesQueryOptions = queryOptions({
   queryKey: ['get-all-expenses'],
   queryFn: getAllExpenses,
   staleTime: 1000 * 60 * 5,
+})
+
+async function getTotalSpent() {
+  const res = await api.expenses['total-spent'].$get()
+  throwIfUnauthorised(res)
+  if (!res.ok) {
+    throw new Error('server error')
+  }
+  const data = await res.json()
+  return data
+}
+
+export const getTotalSpentQueryOptions = queryOptions({
+  queryKey: ['get-total-spent'],
+  queryFn: getTotalSpent,
 })
 
 export async function createExpense(data: PostExpense) {

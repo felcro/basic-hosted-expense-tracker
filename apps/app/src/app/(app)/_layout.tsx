@@ -6,9 +6,12 @@ import { TabButton } from '../../components/common/TabButton'
 import { NativeHeader } from '../../components/native/NativeHeader'
 import { useSession } from '../../lib/auth'
 import { routes } from '../../lib/routes'
+import { useExpenseStream } from '../../lib/useExpenseStream.native'
 
 export default function RootLayout() {
   const { isAuthenticated, isLoading } = useSession()
+
+  useExpenseStream(isAuthenticated)
 
   if (isLoading) {
     return null
