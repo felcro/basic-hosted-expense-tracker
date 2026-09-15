@@ -22,20 +22,22 @@ server.use(
   }),
 )
 // CSRF guards against a browser silently attaching *cookies* to a cross-site
-// request. A bearer token is never attached automatically, so the attack it
-// prevents doesn't exist for token-authenticated calls — and native clients
-// send neither `Origin` nor `sec-fetch-site`, so they fail the origin check by
-// default. Without this exemption every bodyless non-safe request from native
-// (e.g. DELETE, which sends no Content-Type and so defaults to `text/plain`)
-// is rejected with a 403 before reaching its handler.
-server.use(
-  '/api/*',
-  csrf({
-    origin: (origin, c) =>
-      c.req.header('Authorization')?.startsWith('Bearer ') ||
-      allowedOrigins.includes(origin),
-  }),
-)
+// request. A bearer token is never attached automatically, so the protection is
+// inert for token-authenticated calls — skip it entirely for those rather than
+// exempting them via the `origin` option, which is never consulted when there
+// is no Origin header (hono returns false before calling the handler). Native
+// sends neither `Origin` nor `sec-fetch-site`, so without this every bodyless
+// non-safe request from native is rejected with a 403 before reaching its
+// handler — a DELETE sends no Content-Type, and hono defaults the missing
+// header to `text/plain`, which matches its form-submission check.
+const csrfProtection = csrf({ origin: allowedOrigins })
+
+server.use('/api/*', async (c, next) => {
+  if (c.req.header('Authorization')?.startsWith('Bearer ')) {
+    return next()
+  }
+  return csrfProtection(c, next)
+})
 server.get('/health', (c) => {
   return c.json({ status: 'ok' })
 })

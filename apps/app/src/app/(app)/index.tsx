@@ -9,7 +9,7 @@ import {
   CardContent,
   CardTitle,
 } from '../../components/rnp-unistyles/Card'
-import { api } from '../../lib/api'
+import { api, throwIfUnauthorised } from '../../lib/api'
 
 const styles = StyleSheet.create((theme) => ({
   screen: {
@@ -34,6 +34,7 @@ const styles = StyleSheet.create((theme) => ({
 
 async function getTotalSpent() {
   const res = await api.expenses['total-spent'].$get()
+  throwIfUnauthorised(res)
   if (!res.ok) {
     throw new Error('server error')
   }
