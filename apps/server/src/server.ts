@@ -21,7 +21,21 @@ server.use(
     credentials: true,
   }),
 )
-server.use('/api/*', csrf({ origin: allowedOrigins }))
+// CSRF guards against a browser silently attaching *cookies* to a cross-site
+// request. A bearer token is never attached automatically, so the attack it
+// prevents doesn't exist for token-authenticated calls — and native clients
+// send neither `Origin` nor `sec-fetch-site`, so they fail the origin check by
+// default. Without this exemption every bodyless non-safe request from native
+// (e.g. DELETE, which sends no Content-Type and so defaults to `text/plain`)
+// is rejected with a 403 before reaching its handler.
+server.use(
+  '/api/*',
+  csrf({
+    origin: (origin, c) =>
+      c.req.header('Authorization')?.startsWith('Bearer ') ||
+      allowedOrigins.includes(origin),
+  }),
+)
 server.get('/health', (c) => {
   return c.json({ status: 'ok' })
 })

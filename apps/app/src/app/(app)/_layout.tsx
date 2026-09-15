@@ -44,6 +44,13 @@ export default function RootLayout() {
           >
             <TabButton label={routes['create-expense'].label} />
           </TabTrigger>
+          <TabTrigger
+            name={routes.profile.name}
+            href={routes.profile.href}
+            asChild
+          >
+            <TabButton label={routes.profile.label} />
+          </TabTrigger>
         </TabList>
       </Tabs>
     </>

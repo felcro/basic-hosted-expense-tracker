@@ -24,10 +24,10 @@ import {
 } from '@/components/ui/calendar'
 import { HStack } from '@/components/ui/hstack'
 import {
+  AlertCircleIcon,
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  AlertCircleIcon,
   Icon,
 } from '@/components/ui/icon'
 import {
@@ -71,7 +71,7 @@ export default function CreateExpense() {
       ...defaultPostExpenseValues,
     },
   })
-  const { control, handleSubmit, formState } = methods
+  const { control, handleSubmit, formState, reset } = methods
 
   const onSubmit = async (data: PostExpense) => {
     // Ensure we have all the existing expenses before we post the new one
@@ -98,6 +98,9 @@ export default function CreateExpense() {
           ...existingExpenses.expenses,
         ],
       })
+
+      reset()
+
       toast.show({
         placement: 'bottom right',
         avoidKeyboard: true,
