@@ -22,25 +22,13 @@ import {
   CalendarHeaderYearSelect,
   CalendarWeekDaysHeader,
 } from '@/components/ui/calendar'
-import { HStack } from '@/components/ui/hstack'
-import {
-  AlertCircleIcon,
-  CheckIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  Icon,
-} from '@/components/ui/icon'
-import {
-  Toast,
-  ToastDescription,
-  ToastTitle,
-  useToast,
-} from '@/components/ui/toast'
-import { VStack } from '@/components/ui/vstack'
+import { ChevronLeftIcon, ChevronRightIcon, Icon } from '@/components/ui/icon'
+import { useToast } from '@/components/ui/toast'
 
 import { BaseView } from '../../components/common/BaseView'
 import { LinkText } from '../../components/common/Text'
 import { TextInput } from '../../components/common/TextInput'
+import { showToast } from '../../components/common/Toast'
 import {
   convertUTCToLocaleDate,
   createExpense,
@@ -107,65 +95,22 @@ export default function CreateExpense() {
 
       reset()
 
-      toast.show({
+      showToast({
+        toast: toast,
+        toastContainerStyle: toastContainerStyle,
         placement: 'bottom right',
         avoidKeyboard: true,
-        containerStyle: toastContainerStyle,
-        render: ({ id }) => {
-          const toastId = 'toast-' + id
-          return (
-            <Toast
-              nativeID={toastId}
-              action="success"
-              variant="outline"
-              className="p-4 gap-6 border-accent-lime web:w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row mr-6 mb-0"
-            >
-              <HStack space="md">
-                <Icon as={CheckIcon} className="mt-0.5 stroke-accent-lime" />
-                <VStack space="xs">
-                  <ToastTitle className="font-semibold text-accent-lime">
-                    Success!
-                  </ToastTitle>
-                  <ToastDescription size="sm">
-                    Expense created successfully.
-                  </ToastDescription>
-                </VStack>
-              </HStack>
-            </Toast>
-          )
-        },
+        action: 'success',
+        description: 'Expense created successfully.',
       })
     } catch (error) {
-      toast.show({
+      showToast({
+        toast: toast,
+        toastContainerStyle: toastContainerStyle,
         placement: 'bottom right',
         avoidKeyboard: true,
-        containerStyle: toastContainerStyle,
-        render: ({ id }) => {
-          const toastId = 'toast-' + id
-          return (
-            <Toast
-              nativeID={toastId}
-              action="error"
-              variant="outline"
-              className="p-4 gap-6 border-destructive web:w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row mr-6 mb-0"
-            >
-              <HStack space="md">
-                <Icon
-                  as={AlertCircleIcon}
-                  className="mt-0.5 stroke-destructive"
-                />
-                <VStack space="xs">
-                  <ToastTitle className="font-semibold text-destructive">
-                    Error!
-                  </ToastTitle>
-                  <ToastDescription size="sm">
-                    {getErrorMessage(error)}
-                  </ToastDescription>
-                </VStack>
-              </HStack>
-            </Toast>
-          )
-        },
+        action: 'error',
+        description: getErrorMessage(error),
       })
     } finally {
       queryClient.setQueryData(loadingCreateExpenseQueryOptions.queryKey, {})

@@ -57,26 +57,30 @@ export default function SignIn() {
   }
 
   return (
-    <BaseView title="Sign In" contentStyles={styles.content}>
-      <Text variant="bodyMedium">You need to sign in to view this page.</Text>
-      <View style={styles.actions}>
+    <BaseView contentStyles={styles.baseView}>
+      <View style={styles.content}>
         <Button mode="contained" onPress={() => openAuthUrl('/api/login')}>
           Sign In
         </Button>
         <Button mode="outlined" onPress={() => openAuthUrl('/api/register')}>
           Create an account
         </Button>
+        <Text variant="bodyMedium" style={{ textAlign: 'center' }}>
+          Sign in or create an account to view the expense tracker.
+        </Text>
       </View>
     </BaseView>
   )
 }
 
 const styles = StyleSheet.create((theme) => ({
-  content: {
+  baseView: {
     gap: theme.gap(2),
     paddingTop: theme.gap(4),
+    paddingHorizontal: theme.gap(4),
+    justifyContent: 'center',
   },
-  actions: {
+  content: {
     gap: theme.gap(1),
     width: '100%',
     maxWidth: 320,

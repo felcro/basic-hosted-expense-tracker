@@ -2,19 +2,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { IconButton } from 'react-native-paper'
 import { useUnistyles } from 'react-native-unistyles'
 
-import { HStack } from '@/components/ui/hstack'
-import { AlertCircleIcon, CheckIcon, Icon } from '@/components/ui/icon'
-import {
-  Toast,
-  ToastDescription,
-  ToastTitle,
-  useToast,
-} from '@/components/ui/toast'
-import { VStack } from '@/components/ui/vstack'
+import { useToast } from '@/components/ui/toast'
 
 import { deleteExpense, getAllExpensesQueryOptions } from '../../lib/api'
 import { useToastContainerStyle } from '../../lib/toastInsets'
 import { darkColors, lightColors } from '../../theme/themeTokens'
+import { showToast } from './Toast'
 
 export function TableDeleteButton({ id }: { id: number }) {
   const { rt } = useUnistyles()
@@ -26,36 +19,13 @@ export function TableDeleteButton({ id }: { id: number }) {
     mutationFn: deleteExpense,
 
     onError: () => {
-      toast.show({
+      showToast({
+        toast: toast,
+        toastContainerStyle: toastContainerStyle,
         placement: 'bottom right',
         avoidKeyboard: true,
-        containerStyle: toastContainerStyle,
-        render: ({ id: toastInstanceId }) => {
-          const toastId = 'toast-' + toastInstanceId
-          return (
-            <Toast
-              nativeID={toastId}
-              action="error"
-              variant="outline"
-              className="p-4 gap-6 border-destructive web:w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row mr-6 mb-0"
-            >
-              <HStack space="md">
-                <Icon
-                  as={AlertCircleIcon}
-                  className="mt-0.5 stroke-destructive"
-                />
-                <VStack space="xs">
-                  <ToastTitle className="font-semibold text-destructive">
-                    Error
-                  </ToastTitle>
-                  <ToastDescription size="sm">
-                    {'Failed to delete expense: ' + id}
-                  </ToastDescription>
-                </VStack>
-              </HStack>
-            </Toast>
-          )
-        },
+        action: 'error',
+        description: 'Failed to delete expense: ' + id,
       })
     },
     onSuccess: () => {
@@ -69,33 +39,13 @@ export function TableDeleteButton({ id }: { id: number }) {
           ),
         }),
       )
-      toast.show({
+      showToast({
+        toast: toast,
+        toastContainerStyle: toastContainerStyle,
         placement: 'bottom right',
         avoidKeyboard: true,
-        containerStyle: toastContainerStyle,
-        render: ({ id: toastInstanceId }) => {
-          const toastId = 'toast-' + toastInstanceId
-          return (
-            <Toast
-              nativeID={toastId}
-              action="success"
-              variant="outline"
-              className="p-4 gap-6 border-accent-lime web:w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row mr-6 mb-0"
-            >
-              <HStack space="md">
-                <Icon as={CheckIcon} className="mt-0.5 stroke-accent-lime" />
-                <VStack space="xs">
-                  <ToastTitle className="font-semibold text-accent-lime">
-                    Success!
-                  </ToastTitle>
-                  <ToastDescription size="sm">
-                    {'Successfully deleted expense: ' + id}
-                  </ToastDescription>
-                </VStack>
-              </HStack>
-            </Toast>
-          )
-        },
+        action: 'success',
+        description: 'Successfully deleted expense: ' + id,
       })
     },
   })

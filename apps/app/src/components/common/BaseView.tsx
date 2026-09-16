@@ -27,7 +27,7 @@ const styles = StyleSheet.create((theme) => ({
 }))
 
 export type BaseViewProps = {
-  title: string
+  title?: string
   children?: ReactNode
   contentStyles?: ViewProps['style']
 }
