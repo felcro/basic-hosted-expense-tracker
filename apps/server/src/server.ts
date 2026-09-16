@@ -4,6 +4,7 @@ import { compress } from 'hono/compress'
 import { cors } from 'hono/cors'
 import { csrf } from 'hono/csrf'
 import { logger } from 'hono/logger'
+import { fileURLToPath } from 'node:url'
 
 import { authRoute } from './routes/auth'
 import { expensesRoute } from './routes/expenses'
@@ -58,8 +59,11 @@ const apiRoutes = server
   .route('/expenses', expensesRoute)
   .route('/', authRoute)
 
-// Static serving the server
-const webRoot = './apps/app/dist'
+// Static serving the server. Resolved against this file rather than the
+// working directory: `bun run start` runs from `apps/server` (so Bun picks up
+// that package's `.env`), while Clever Cloud runs `bun apps/server/serve.ts`
+// from the repo root.
+const webRoot = fileURLToPath(new URL('../../app/dist', import.meta.url))
 
 // `bun run build:web` writes a brotli-compressed `.br` alongside each static
 // asset. Brotli beats gzip by ~20% here but is far too slow to run per

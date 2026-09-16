@@ -18,7 +18,7 @@
   "module": "index.ts",
   "scripts": {
     "build:web": "cd apps/app && bun x expo export -p web && bun scripts/precompress.ts",
-    "start": "bun apps/server/serve.ts",
+    "start": "cd apps/server && bun serve.ts",
     "fmt": "oxfmt",
     "lint": "oxfmt && oxlint",
     "lint:fix": "oxfmt && oxlint --fix",
