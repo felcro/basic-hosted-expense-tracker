@@ -24,5 +24,8 @@
   // project trades IntelliSense inside components/ui for a responsive
   // editor everywhere else. Metro/Babel still compile them normally; this
   // only affects the language server.
-  "exclude": ["components/ui/**"]
+  // `scripts/` runs under Bun at build time, not in the app bundle, so it
+  // needs Node/Bun globals that `types: []` deliberately withholds here. It
+  // has its own tsconfig.
+  "exclude": ["components/ui/**", "scripts/**"]
 }

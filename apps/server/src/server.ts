@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
+import { compress } from 'hono/compress'
 import { cors } from 'hono/cors'
 import { csrf } from 'hono/csrf'
 import { logger } from 'hono/logger'
@@ -21,6 +22,15 @@ server.use(
     credentials: true,
   }),
 )
+// `compress()` buffers a response to compress it, which would hold back the
+// SSE stream's events and keep-alive pings indefinitely. Skip it there.
+server.use('*', async (c, next) => {
+  if (c.req.path === '/api/expenses/stream') {
+    return next()
+  }
+  return compress()(c, next)
+})
+
 // CSRF guards against a browser silently attaching *cookies* to a cross-site
 // request. A bearer token is never attached automatically, so the protection is
 // inert for token-authenticated calls — skip it entirely for those rather than
@@ -50,6 +60,40 @@ const apiRoutes = server
 
 // Static serving the server
 const webRoot = './apps/app/dist'
+
+// `bun run build:web` writes a brotli-compressed `.br` alongside each static
+// asset. Brotli beats gzip by ~20% here but is far too slow to run per
+// request at the quality that earns the difference, so serve the prebuilt
+// file when the browser accepts it and fall through to `compress()`'s gzip
+// otherwise.
+const CONTENT_TYPES: Record<string, string> = {
+  css: 'text/css; charset=utf-8',
+  html: 'text/html; charset=utf-8',
+  js: 'text/javascript; charset=utf-8',
+  json: 'application/json; charset=utf-8',
+  svg: 'image/svg+xml',
+}
+
+server.use('/*', async (c, next) => {
+  if (!c.req.header('Accept-Encoding')?.includes('br')) {
+    return next()
+  }
+
+  const file = Bun.file(`${webRoot}${c.req.path}.br`)
+  if (!(await file.exists())) {
+    return next()
+  }
+
+  const extension = c.req.path.split('.').pop() ?? ''
+  c.header('Content-Encoding', 'br')
+  c.header('Vary', 'Accept-Encoding')
+  c.header(
+    'Content-Type',
+    CONTENT_TYPES[extension] ?? 'application/octet-stream',
+  )
+  return c.body(file.stream())
+})
+
 server.use('/*', serveStatic({ root: webRoot }))
 server.get('*', serveStatic({ path: 'index.html', root: webRoot }))
 
