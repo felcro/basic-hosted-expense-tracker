@@ -34,12 +34,29 @@ export function useSetToastBottomInset() {
  * Pass as `containerStyle` to `toast.show()`. gluestack applies it to the
  * wrapper view around the toast, so this lifts the toast clear of the tab bar
  * without adding padding to the toast itself.
+ *
+ * `position: 'absolute'` is what makes the tab bar tappable while a toast is up.
+ * gluestack wraps every toast in a `SafeAreaProvider`/`SafeAreaView` pair that is
+ * anchored to the bottom of the screen and sized by this container. In normal
+ * flow that wrapper stretched across the tab bar (a `marginBottom` offset made
+ * it taller still) and swallowed every tap on the tabs it covered. Those views
+ * come from `react-native-safe-area-context`, which ignores `pointerEvents`, so
+ * setting `pointerEvents` anywhere in the toast tree cannot reach them. Taking
+ * the container out of flow collapses the wrapper to zero size, leaving the tab
+ * bar clear.
  */
 export function useToastContainerStyle() {
   const { bottomInset } = useContext(ToastBottomInsetContext)
 
   return useMemo(
-    () => (bottomInset > 0 ? { marginBottom: bottomInset } : undefined),
+    () =>
+      bottomInset > 0
+        ? ({
+            position: 'absolute',
+            right: 0,
+            bottom: bottomInset + 24,
+          } as const)
+        : undefined,
     [bottomInset],
   )
 }

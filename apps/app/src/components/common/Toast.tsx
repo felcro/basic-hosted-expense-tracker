@@ -1,6 +1,7 @@
 import type { InterfaceToastProps } from '@gluestack-ui/core/lib/esm/toast/creator/types'
 
 import { HStack } from '@/components/ui/hstack'
+import { Pressable } from '@/components/ui/pressable'
 import {
   Toast as GluestackToast,
   ToastDescription,
@@ -9,7 +10,12 @@ import {
 } from '@/components/ui/toast'
 import { VStack } from '@/components/ui/vstack'
 
-import { AlertCircleIcon, CheckIcon, Icon } from '../../../components/ui/icon'
+import {
+  AlertCircleIcon,
+  CheckIcon,
+  CloseIcon,
+  Icon,
+} from '../../../components/ui/icon'
 import { useToastContainerStyle } from '../../lib/toastInsets'
 
 type Action = 'error' | 'success'
@@ -65,7 +71,7 @@ export function showToast({
           nativeID={toastId}
           action={action}
           variant="outline"
-          className={`p-4 gap-6 ${toastProperties[action].toast} web:w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row mr-6 mb-0`}
+          className={`p-4 gap-6 ${toastProperties[action].toast} sm:min-w-60 max-w-96 bg-card shadow-hard-2 flex-row mr-6 mb-0`}
         >
           <HStack space="md">
             <Icon
@@ -81,6 +87,9 @@ export function showToast({
               <ToastDescription size="sm">{description}</ToastDescription>
             </VStack>
           </HStack>
+          <Pressable onPress={() => toast.close(id)}>
+            <Icon as={CloseIcon} />
+          </Pressable>
         </GluestackToast>
       )
     },
