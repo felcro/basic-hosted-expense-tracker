@@ -9,7 +9,7 @@ import { router } from 'expo-router'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 import { Button } from 'react-native-paper'
-import { StyleSheet } from 'react-native-unistyles'
+import { StyleSheet, useUnistyles } from 'react-native-unistyles'
 
 import {
   Calendar,
@@ -49,6 +49,7 @@ import {
 } from '../../lib/api'
 import { getErrorMessage } from '../../lib/error'
 import { routes } from '../../lib/routes'
+import { useToastContainerStyle } from '../../lib/toastInsets'
 
 const styles = StyleSheet.create((theme) => ({
   form: {
@@ -63,7 +64,12 @@ const styles = StyleSheet.create((theme) => ({
 
 export default function CreateExpense() {
   const toast = useToast()
+  const toastContainerStyle = useToastContainerStyle()
   const queryClient = useQueryClient()
+  const { theme } = useUnistyles()
+  const calendarHeaderBackground = theme.colors.tint
+    .replace('rgb(', 'rgba(')
+    .replace(')', ', 0.1)')
 
   const methods = useForm({
     resolver: zodResolver(createExpenseSchema),
@@ -104,6 +110,7 @@ export default function CreateExpense() {
       toast.show({
         placement: 'bottom right',
         avoidKeyboard: true,
+        containerStyle: toastContainerStyle,
         render: ({ id }) => {
           const toastId = 'toast-' + id
           return (
@@ -111,7 +118,7 @@ export default function CreateExpense() {
               nativeID={toastId}
               action="success"
               variant="outline"
-              className="p-4 gap-6 border-accent-lime w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row m-6"
+              className="p-4 gap-6 border-accent-lime web:w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row mr-6 mb-0"
             >
               <HStack space="md">
                 <Icon as={CheckIcon} className="mt-0.5 stroke-accent-lime" />
@@ -132,6 +139,7 @@ export default function CreateExpense() {
       toast.show({
         placement: 'bottom right',
         avoidKeyboard: true,
+        containerStyle: toastContainerStyle,
         render: ({ id }) => {
           const toastId = 'toast-' + id
           return (
@@ -139,7 +147,7 @@ export default function CreateExpense() {
               nativeID={toastId}
               action="error"
               variant="outline"
-              className="p-4 gap-6 border-destructive w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row m-6"
+              className="p-4 gap-6 border-destructive web:w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row mr-6 mb-0"
             >
               <HStack space="md">
                 <Icon
@@ -189,9 +197,12 @@ export default function CreateExpense() {
                 enableMonthYearPicker={true}
                 minYear={2000}
                 maxYear={2030}
-                className="min-w-min"
+                style={{ width: 300 }}
               >
-                <CalendarHeader className="bg-primary/10 rounded-sm p-1">
+                <CalendarHeader
+                  className="rounded-sm p-1"
+                  style={{ backgroundColor: calendarHeaderBackground }}
+                >
                   <CalendarHeaderPrevButton>
                     <Icon as={ChevronLeftIcon} size="sm" />
                   </CalendarHeaderPrevButton>

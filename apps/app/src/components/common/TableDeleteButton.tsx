@@ -13,11 +13,13 @@ import {
 import { VStack } from '@/components/ui/vstack'
 
 import { deleteExpense, getAllExpensesQueryOptions } from '../../lib/api'
+import { useToastContainerStyle } from '../../lib/toastInsets'
 import { darkColors, lightColors } from '../../theme/themeTokens'
 
 export function TableDeleteButton({ id }: { id: number }) {
   const { rt } = useUnistyles()
   const toast = useToast()
+  const toastContainerStyle = useToastContainerStyle()
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
@@ -27,6 +29,7 @@ export function TableDeleteButton({ id }: { id: number }) {
       toast.show({
         placement: 'bottom right',
         avoidKeyboard: true,
+        containerStyle: toastContainerStyle,
         render: ({ id: toastInstanceId }) => {
           const toastId = 'toast-' + toastInstanceId
           return (
@@ -34,7 +37,7 @@ export function TableDeleteButton({ id }: { id: number }) {
               nativeID={toastId}
               action="error"
               variant="outline"
-              className="p-4 gap-6 border-destructive w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row m-3"
+              className="p-4 gap-6 border-destructive web:w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row mr-6 mb-0"
             >
               <HStack space="md">
                 <Icon
@@ -69,6 +72,7 @@ export function TableDeleteButton({ id }: { id: number }) {
       toast.show({
         placement: 'bottom right',
         avoidKeyboard: true,
+        containerStyle: toastContainerStyle,
         render: ({ id: toastInstanceId }) => {
           const toastId = 'toast-' + toastInstanceId
           return (
@@ -76,7 +80,7 @@ export function TableDeleteButton({ id }: { id: number }) {
               nativeID={toastId}
               action="success"
               variant="outline"
-              className="p-4 gap-6 border-accent-lime w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row m-3"
+              className="p-4 gap-6 border-accent-lime web:w-full sm:min-w-96 max-w-96 bg-card shadow-hard-2 flex-row mr-6 mb-0"
             >
               <HStack space="md">
                 <Icon as={CheckIcon} className="mt-0.5 stroke-accent-lime" />

@@ -16,6 +16,7 @@ import '@/global.css'
 import { UnauthorisedError, userQueryOptions } from '../lib/api'
 import { SessionProvider } from '../lib/auth'
 import { SplashScreenController } from '../lib/splash'
+import { ToastInsetProvider } from '../lib/toastInsets'
 import { paperDarkTheme, paperLightTheme } from '../theme/paperTheme'
 
 /**
@@ -49,6 +50,11 @@ export default function Root() {
   const { rt } = useUnistyles()
   const paperTheme = rt.themeName === 'dark' ? paperDarkTheme : paperLightTheme
 
+  // When wrapped in <StrictMode>: its double-mount remounts the navigator on a
+  // web page load, and expo-router then writes its own surviving state — the
+  // (app) group's index — back over the URL, so refreshing any non-index route
+  // lands on home. Verified by toggling it: with StrictMode, /about and
+  // /expenses both rewrite to "/" ~760ms into the load; without it, both hold.
   return (
     <StrictMode>
       <KindeAuthProvider
@@ -61,14 +67,19 @@ export default function Root() {
           <SessionProvider>
             <PaperProvider theme={paperTheme}>
               <GluestackUIProvider mode={rt.themeName}>
-                <SplashScreenController />
-                <Stack>
-                  <Stack.Screen name="(app)" options={{ headerShown: false }} />
-                  <Stack.Screen
-                    name="sign-in"
-                    options={{ headerShown: false }}
-                  />
-                </Stack>
+                <ToastInsetProvider>
+                  <SplashScreenController />
+                  <Stack>
+                    <Stack.Screen
+                      name="(app)"
+                      options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                      name="sign-in"
+                      options={{ headerShown: false }}
+                    />
+                  </Stack>
+                </ToastInsetProvider>
               </GluestackUIProvider>
             </PaperProvider>
           </SessionProvider>

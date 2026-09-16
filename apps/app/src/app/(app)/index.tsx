@@ -4,28 +4,22 @@ import { Text } from 'react-native-paper'
 import { StyleSheet } from 'react-native-unistyles'
 
 import { BaseView } from '../../components/common/BaseView'
-import {
-  Card,
-  CardContent,
-  CardTitle,
-} from '../../components/rnp-unistyles/Card'
+import { Card, CardContent } from '../../components/rnp-unistyles/Card'
 import { getTotalSpentQueryOptions } from '../../lib/api'
 
 const styles = StyleSheet.create((theme) => ({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
   title: {
     position: 'relative',
     alignItems: 'center',
     paddingVertical: theme.gap(2),
   },
   cardContainer: {
-    alignItems: 'center',
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
+    alignSelf: 'center',
+    marginHorizontal: theme.gap(2),
+  },
+  cardHeader: {
+    paddingHorizontal: theme.gap(2),
+    paddingTop: theme.gap(2),
   },
   cardContent: {
     marginTop: 10,
@@ -41,13 +35,11 @@ export default function Home() {
 
   return (
     <BaseView title="Home">
-      <Card>
-        <CardTitle
-          titleVariant="titleLarge"
-          title="Total Spent"
-          subtitle="The total amount you've spent"
-          subtitleVariant="bodyMedium"
-        />
+      <Card style={styles.cardContainer}>
+        <CardContent style={styles.cardHeader}>
+          <Text variant="titleLarge">Total Spent</Text>
+          <Text variant="bodyMedium">The total amount you&apos;ve spent</Text>
+        </CardContent>
         <CardContent style={styles.cardContent}>
           <Text variant="bodyLarge">{isPending ? '...' : data?.total}</Text>
         </CardContent>

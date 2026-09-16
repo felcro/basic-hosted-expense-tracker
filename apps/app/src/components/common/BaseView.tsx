@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { View, type ViewProps } from 'react-native'
+import { ScrollView, View, type ViewProps } from 'react-native'
 import { Text } from 'react-native-paper'
 import { StyleSheet } from 'react-native-unistyles'
 
@@ -8,7 +8,9 @@ const styles = StyleSheet.create((theme) => ({
   baseView: {
     flex: 1,
     backgroundColor: theme.colors.background,
-    overflowY: 'auto',
+  },
+  baseViewContent: {
+    flexGrow: 1,
   },
   header: {
     position: 'relative',
@@ -20,6 +22,7 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
+    paddingBottom: theme.gap(6),
   },
 }))
 
@@ -31,13 +34,16 @@ export type BaseViewProps = {
 
 export function BaseView({ title, children, contentStyles }: BaseViewProps) {
   return (
-    <View style={styles.baseView}>
+    <ScrollView
+      style={styles.baseView}
+      contentContainerStyle={styles.baseViewContent}
+    >
       <View style={styles.header}>
         <Text variant="headlineLarge">{title}</Text>
       </View>
       <View style={[styles.container, contentStyles && contentStyles]}>
         {children}
       </View>
-    </View>
+    </ScrollView>
   )
 }

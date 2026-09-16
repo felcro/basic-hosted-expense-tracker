@@ -32,6 +32,7 @@
   "devDependencies": {
     "@nkzw/eslint-plugin": "^2.0.0",
     "@nkzw/oxlint-config": "^1.2.1",
+    "@swmansion/argent": "^0.25.1",
     "@types/bun": "latest",
     "eslint-plugin-no-only-tests": "^3.4.0",
     "eslint-plugin-react-hooks": "^7.1.1",

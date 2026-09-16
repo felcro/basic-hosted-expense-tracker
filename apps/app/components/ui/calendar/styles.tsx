@@ -67,7 +67,7 @@ export const calendarWeekStyle = tva({
 
 // Day
 export const calendarDayStyle = tva({
-  base: 'flex-1 aspect-square items-center justify-center rounded-md web:max-w-10 relative transition-colors',
+  base: 'flex-1 h-10 items-center justify-center rounded-md web:max-w-10 relative transition-colors',
   variants: {
     state: {
       default: 'hover:bg-accent/10 active:bg-accent/80',
