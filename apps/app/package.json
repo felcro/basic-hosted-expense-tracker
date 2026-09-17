@@ -10,7 +10,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web --clear",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "jest"
   },
   "dependencies": {
     "@basic-hosted-expense-tracker/server": "workspace:^",
@@ -57,12 +58,82 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/react-native": "^14.0.1",
     "@types/react": "~19.2.4",
+    "@types/react-dom": "~19.2.7",
     "babel-plugin-module-resolver": "^5.0.0",
     "babel-preset-expo": "~57.0.0",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~57.0.1",
+    "jest": "^30.5.1",
+    "jest-expo": "~57.0.5",
     "tailwindcss": "^4.2.0",
+    "test-renderer": "^1.3.0",
     "typescript": "catalog:"
+  },
+  "jest": {
+    "projects": [
+      {
+        "preset": "jest-expo/ios",
+        "displayName": "ios",
+        "setupFilesAfterEnv": [
+          "<rootDir>/test/setup.ts"
+        ],
+        "moduleNameMapper": {
+          "\\.(css)$": "<rootDir>/test/mocks/styleMock.js",
+          "^@/app/(.*)$": "<rootDir>/src/$1",
+          "^@/(.*)$": "<rootDir>/$1"
+        },
+        "transformIgnorePatterns": [
+          "node_modules/(?!(?:.pnpm/)?((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|native-base|react-native-svg|nativewind|react-native-css|react-native-unistyles|@gluestack-ui/.*|react-native-paper|@react-native-vector-icons/.*|react-native-reanimated|react-native-worklets|standard-navigation|expo-router))"
+        ],
+        "testMatch": [
+          "<rootDir>/test/**/*.test.[jt]s?(x)"
+        ],
+        "testPathIgnorePatterns": [
+          "\\.web\\.test\\.[jt]sx?$"
+        ]
+      },
+      {
+        "preset": "jest-expo/android",
+        "displayName": "android",
+        "setupFilesAfterEnv": [
+          "<rootDir>/test/setup.ts"
+        ],
+        "moduleNameMapper": {
+          "\\.(css)$": "<rootDir>/test/mocks/styleMock.js",
+          "^@/app/(.*)$": "<rootDir>/src/$1",
+          "^@/(.*)$": "<rootDir>/$1"
+        },
+        "transformIgnorePatterns": [
+          "node_modules/(?!(?:.pnpm/)?((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|native-base|react-native-svg|nativewind|react-native-css|react-native-unistyles|@gluestack-ui/.*|react-native-paper|@react-native-vector-icons/.*|react-native-reanimated|react-native-worklets|standard-navigation|expo-router))"
+        ],
+        "testMatch": [
+          "<rootDir>/test/**/*.test.[jt]s?(x)"
+        ],
+        "testPathIgnorePatterns": [
+          "\\.web\\.test\\.[jt]sx?$"
+        ]
+      },
+      {
+        "preset": "jest-expo/web",
+        "displayName": "web",
+        "setupFilesAfterEnv": [
+          "<rootDir>/test/setup.ts"
+        ],
+        "moduleNameMapper": {
+          "\\.(css)$": "<rootDir>/test/mocks/styleMock.js",
+          "^@/app/(.*)$": "<rootDir>/src/$1",
+          "^@/(.*)$": "<rootDir>/$1"
+        },
+        "transformIgnorePatterns": [
+          "node_modules/(?!(?:.pnpm/)?((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|native-base|react-native-svg|nativewind|react-native-css|react-native-unistyles|@gluestack-ui/.*|react-native-paper|@react-native-vector-icons/.*|react-native-reanimated|react-native-worklets|standard-navigation|expo-router))"
+        ],
+        "testMatch": [
+          "<rootDir>/test/**/*.web.test.[jt]s?(x)"
+        ]
+      }
+    ]
   }
 }

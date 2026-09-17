@@ -7,7 +7,8 @@
     "generate": "bun drizzle-kit generate",
     "migrate": "bun drizzle-kit migrate",
     "generate:migrate": "bun drizzle-kit generate && bun drizzle-kit migrate",
-    "studio": "bun drizzle-kit studio"
+    "studio": "bun drizzle-kit studio",
+    "test": "bun test"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
@@ -16,6 +17,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@basic-hosted-expense-tracker/shared": "workspace:^",
     "@types/bun": "latest",
     "drizzle-kit": "catalog:",
     "tsx": "^4.23.13"

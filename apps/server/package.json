@@ -5,18 +5,22 @@
   "module": "index.ts",
   "scripts": {
     "server": "bun serve.ts",
-    "devserver": "bun --watch serve.ts"
+    "devserver": "bun --watch serve.ts",
+    "test:integration": "DOCKER_HOST=\"${DOCKER_HOST:-$([ -S \"$HOME/.colima/default/docker.sock\" ] && echo \"unix://$HOME/.colima/default/docker.sock\")}\" TESTCONTAINERS_RYUK_DISABLED=true bun test --preload ./test/setup.ts ./test/integration"
   },
   "dependencies": {
     "@basic-hosted-expense-tracker/db": "workspace:^",
     "@basic-hosted-expense-tracker/shared": "workspace:^",
     "@hono/zod-validator": "^0.9.0",
     "@kinde-oss/kinde-typescript-sdk": "^2.15.1",
+    "@kinde/jwt-decoder": "^0.2.5",
+    "@kinde/jwt-validator": "^0.4.5",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@testcontainers/postgresql": "^12.1.0",
     "@types/bun": "latest",
     "tsx": "^4.23.13"
   },

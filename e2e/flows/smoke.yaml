@@ -1,0 +1,4 @@
+# Harness smoke check: proves `argent flow run` resolves a flow from this
+# visible directory rather than .argent/flows. Delete once real journeys exist.
+steps:
+  - echo: 'e2e flow directory is wired up'

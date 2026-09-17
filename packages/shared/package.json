@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "module": "index.ts",
+  "scripts": {
+    "test": "bun test"
+  },
   "dependencies": {
     "zod": "catalog:"
   },

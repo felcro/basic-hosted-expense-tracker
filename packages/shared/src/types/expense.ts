@@ -5,6 +5,7 @@ export const expenseSchema = z.object({
   userId: z.string(),
   title: z
     .string()
+    .trim()
     .min(3, { message: 'Title must be at least 3 characters' })
     .regex(/^[A-Za-z0-9 _-]+$/, 'The title must only contain valid characters'),
   amount: z.string().regex(/^\d+(\.\d{1,2})?$/, {

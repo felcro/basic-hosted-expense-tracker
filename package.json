@@ -27,7 +27,11 @@
     "ios": "bun run --filter '*' ios",
     "web": "bun run --filter '*' web",
     "server": "bun run --filter '*' server",
-    "dev": "bun run --filter '*' devserver"
+    "dev": "bun run --filter '*' devserver",
+    "test": "bun run --filter '*' test",
+    "test:integration": "bun run --filter '@basic-hosted-expense-tracker/server' test:integration",
+    "test:all": "bun run test && bun run test:integration",
+    "test:e2e": "bunx argent flow run e2e/flows"
   },
   "devDependencies": {
     "@nkzw/eslint-plugin": "^2.0.0",

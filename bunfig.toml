@@ -1,2 +1,24 @@
 [install]
+# Required, not optional. The default linker leaves multiple physical copies of some
+# transitive dependencies (metro, react-native-web-adjacent packages) installed at once,
+# which breaks Metro bundling in apps/app. See the root CLAUDE.md.
 linker = "hoisted"
+
+[test]
+# Bare `bun test` from the repo root walks the whole tree, which would otherwise try to run
+# two sets of files that cannot work under bun:test:
+#
+#   apps/app          jest-expo tests — fail with "Unexpected typeof" on react-native's
+#                     Flow syntax, since bun:test does not strip it
+#   apps/server/test/integration
+#                     need DOCKER_HOST and a preloaded setup file; without them every
+#                     container start fails
+#
+# Pruning both makes bare `bun test` equivalent to the fast suite. Use the root scripts for
+# anything else:
+#
+#   bun run test              shared + db + app (app via jest-expo)
+#   bun run test:integration  apps/server, Colima + preload
+#   bun run test:all          both of the above
+#   bun run test:e2e          Argent flows
+pathIgnorePatterns = ["apps/app/**", "apps/server/test/integration/**"]
