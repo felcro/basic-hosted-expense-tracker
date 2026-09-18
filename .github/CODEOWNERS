@@ -1,0 +1,9 @@
+# Every change requires the repo owner's review by default.
+# Required-review enforcement is set separately in the main ruleset
+# (scripts/setup-branch-protection.sh); this file only decides who is requested.
+* @felcro
+
+# CI, deploy and protection config. Called out so a change to the pipeline
+# itself is never reviewed more casually than a change to application code.
+/.github/ @felcro
+/scripts/ @felcro

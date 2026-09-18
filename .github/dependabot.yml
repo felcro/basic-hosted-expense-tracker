@@ -1,0 +1,65 @@
+version: 2
+
+updates:
+  # Bun workspaces are not a natively supported Dependabot ecosystem, so this
+  # runs the npm updater against the manifests. Two consequences worth knowing:
+  #
+  #   1. It updates package.json but cannot update bun.lock. Every Dependabot PR
+  #      therefore FAILS the `bun install --frozen-lockfile` step in CI until
+  #      someone runs `bun install` on the branch and commits the lockfile.
+  #      That is intended: it forces a human to regenerate the lockfile with Bun
+  #      rather than letting a wrong lockfile merge.
+  #
+  #   2. It does not understand the `workspaces.catalog` block in the root
+  #      package.json, so catalog-pinned deps (drizzle-orm, hono, typescript,
+  #      zod) will not be bumped here. Bump those by hand in the catalog.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+    open-pull-requests-limit: 5
+    groups:
+      # One PR for the low-risk churn instead of a dozen.
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+      production-minor-patch:
+        dependency-type: production
+        update-types: [minor, patch]
+    ignore:
+      # metro is pinned via `overrides` in the root package.json because several
+      # apps/app dependencies pull in incompatible versions and Bun installs
+      # them side by side, breaking bundling with Bundler class-identity
+      # mismatches. Bumping it must be done deliberately, after checking what
+      # @expo/metro-runtime and metro-config actually declare. See CLAUDE.md.
+      - dependency-name: metro
+      # Pinned in `resolutions` and `overrides`.
+      - dependency-name: lightningcss
+      # The Expo SDK moves as a unit. Upgrade with `expo install --fix` / the
+      # expo-upgrade workflow, never one package at a time.
+      - dependency-name: expo
+      - dependency-name: expo-*
+      - dependency-name: react-native
+      - dependency-name: react-native-*
+      - dependency-name: '@expo/*'
+      - dependency-name: jest-expo
+      # React and React Native versions are coupled; bump with the SDK.
+      - dependency-name: react
+      - dependency-name: react-dom
+    commit-message:
+      prefix: 'deps'
+      prefix-development: 'deps-dev'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '04:00'
+    groups:
+      github-actions:
+        patterns: ['*']
+    commit-message:
+      prefix: 'ci'

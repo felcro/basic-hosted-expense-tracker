@@ -8,6 +8,7 @@
     "migrate": "bun drizzle-kit migrate",
     "generate:migrate": "bun drizzle-kit generate && bun drizzle-kit migrate",
     "studio": "bun drizzle-kit studio",
+    "typecheck": "tsc --noEmit",
     "test": "bun test"
   },
   "dependencies": {

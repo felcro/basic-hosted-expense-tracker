@@ -30,5 +30,14 @@
     "noUncheckedSideEffectImports": true
     // "noPropertyAccessFromIndexSignature": true
   },
+  // Shared base that each package's tsconfig extends. Do NOT run `tsc` from
+  // the repo root: it would check every workspace under the root's own
+  // options, without the `paths` apps/app defines, so its `@/…` imports
+  // resolve to nothing and cascade into spurious errors. That is an artifact
+  // of the wrong config, not a real fault in the code.
+  //
+  // Typecheck per package with `bun run typecheck`, which is what CI runs.
+  // `exclude` is deliberately left as-is: paths here resolve relative to THIS
+  // file even when inherited, so narrowing it breaks every extending package.
   "exclude": ["./node_modules/**"]
 }

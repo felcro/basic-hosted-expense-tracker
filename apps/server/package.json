@@ -6,6 +6,7 @@
   "scripts": {
     "server": "bun serve.ts",
     "devserver": "bun --watch serve.ts",
+    "typecheck": "tsc --noEmit",
     "test:integration": "DOCKER_HOST=\"${DOCKER_HOST:-$([ -S \"$HOME/.colima/default/docker.sock\" ] && echo \"unix://$HOME/.colima/default/docker.sock\")}\" TESTCONTAINERS_RYUK_DISABLED=true bun test --preload ./test/setup.ts ./test/integration"
   },
   "dependencies": {
