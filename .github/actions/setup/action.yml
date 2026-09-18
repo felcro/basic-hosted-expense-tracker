@@ -1,0 +1,24 @@
+name: Setup
+description: Setup shared by every CI job. Installs Bun and runs a frozen install.
+
+inputs:
+  bun-version:
+    description: Bun version to install. Keep in step with the version developers run locally.
+    required: false
+    default: '1.4.2'
+
+runs:
+  using: composite
+  steps:
+    - name: Install Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: ${{ inputs.bun-version }}
+
+    # --frozen-lockfile makes a PR that changes dependencies without committing
+    # bun.lock fail here rather than silently resolving different versions than
+    # the ones developed against. bunfig.toml's hoisted linker applies as usual;
+    # it is required for Metro to bundle, not optional.
+    - name: Install dependencies
+      shell: bash
+      run: bun install --frozen-lockfile

@@ -1,0 +1,284 @@
+name: CI
+
+# Runs on pull requests and on merge-queue entry. Not on push to main: main is
+# only ever reached through the queue, so a push-triggered run would duplicate
+# what the queue already proved.
+on:
+  pull_request:
+    branches: [main]
+  merge_group:
+
+# One in-flight run per PR. Pushing three times in a minute cancels the first
+# two rather than running three full suites concurrently. Merge-queue runs are
+# never cancelled: cancelling one would dequeue the PR.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # Cheapest possible gate, and the reason it runs alone and first: if the
+  # branch cannot merge cleanly, every job below is wasted compute.
+  mergeability:
+    name: Mergeability
+    runs-on: ubuntu-latest
+    # Merge-queue entries are already rebased onto main by GitHub, so there is
+    # nothing to check there.
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # github.event.pull_request.mergeable is computed asynchronously and is
+      # null until GitHub finishes, so polling the API is the reliable read.
+      # A `dirty` verdict means a real conflict with the base branch.
+      - name: Check for merge conflicts with main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          for attempt in $(seq 1 10); do
+            state=$(gh pr view "$PR" --json mergeable --jq .mergeable)
+            echo "attempt ${attempt}: mergeable=${state}"
+            case "$state" in
+              MERGEABLE)
+                echo "No conflicts with main."
+                exit 0
+                ;;
+              CONFLICTING)
+                echo "::error::This branch has merge conflicts with main. Rebase or merge main into it before CI can run."
+                exit 1
+                ;;
+              *)
+                # UNKNOWN: GitHub is still computing. Wait and re-read.
+                sleep 6
+                ;;
+            esac
+          done
+          echo "::warning::Could not determine mergeability after 10 attempts; allowing CI to proceed."
+
+  lint:
+    name: Lint & format
+    runs-on: ubuntu-latest
+    needs: mergeability
+    # needs.<job>.result is 'skipped' in the merge queue, where mergeability
+    # does not run. always() plus an explicit failure test keeps the dependency
+    # without turning a legitimate skip into a block.
+    if: always() && needs.mergeability.result != 'failure'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      # `bun run lint` is `oxfmt --check && oxlint`. The --check matters: bare
+      # `oxfmt` defaults to --write, so in CI it would reformat files, exit 0,
+      # and let formatting drift through unnoticed. `bun run lint:fix` keeps
+      # the rewriting behaviour for local use.
+      - name: Lint and check formatting
+        run: bun run lint
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    needs: mergeability
+    if: always() && needs.mergeability.result != 'failure'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      # Per-package rather than a root `tsc`: each package has its own
+      # tsconfig with different `types` and `paths`, and they are not
+      # composite/project references, so there is no single root invocation
+      # that checks them correctly. `bun run typecheck` fans out with
+      # --filter '*' to every package's own `typecheck` script.
+      - name: Typecheck all packages
+        run: bun run typecheck
+
+  # Catches a schema edit committed without the generated migration. Without
+  # this, such a PR passes CI and ships a production database missing a column.
+  migration-drift:
+    name: Migration drift
+    runs-on: ubuntu-latest
+    needs: mergeability
+    if: always() && needs.mergeability.result != 'failure'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      # Validates migration-file consistency (ordering, collisions, corrupt
+      # snapshots). Does not detect schema-vs-migration drift: that is the
+      # step below. Neither needs a reachable database despite the URL.
+      - name: Validate migration files
+        working-directory: packages/db
+        env:
+          DATABASE_URL: postgresql://unused:unused@127.0.0.1:5432/unused
+        run: bunx drizzle-kit check
+
+      # If the schema and the committed migrations agree, generate prints
+      # "No schema changes, nothing to migrate" and writes nothing. Any new or
+      # modified file means the author forgot `bun run generate`.
+      - name: Detect uncommitted schema changes
+        working-directory: packages/db
+        env:
+          DATABASE_URL: postgresql://unused:unused@127.0.0.1:5432/unused
+        run: bunx drizzle-kit generate
+
+      - name: Fail if migrations are out of date
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::Schema and migrations are out of sync. Run 'bun run generate' in packages/db and commit the result."
+            git status --porcelain
+            git diff
+            exit 1
+          fi
+          echo "Schema and migrations are in sync."
+
+  unit:
+    name: Unit tests (run ${{ matrix.run }})
+    runs-on: ubuntu-latest
+    needs: mergeability
+    if: always() && needs.mergeability.result != 'failure'
+    strategy:
+      # Both runs always complete. Cancelling the second the moment the first
+      # fails would hide whether the failure is deterministic or flaky, which is
+      # the entire reason for running twice.
+      fail-fast: false
+      matrix:
+        run: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      # Covers packages/shared, packages/db and apps/app (3 jest-expo projects:
+      # ios, android, web). apps/server defines no `test` script, so --filter '*'
+      # skips it; its integration suite is the separate job below.
+      - name: Run unit tests
+        # pipefail so `| tee` does not mask a failure: without it the
+        # pipeline reports tee's exit code and failing tests would pass CI.
+        run: |
+          set -o pipefail
+          bun run test 2>&1 | tee unit-run-${{ matrix.run }}.log
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-tests-run-${{ matrix.run }}
+          path: unit-run-${{ matrix.run }}.log
+          retention-days: 30
+
+  integration:
+    name: Integration tests (run ${{ matrix.run }})
+    runs-on: ubuntu-latest
+    needs: mergeability
+    if: always() && needs.mergeability.result != 'failure'
+    strategy:
+      fail-fast: false
+      matrix:
+        run: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      # test/setup.ts starts postgres:16 through Testcontainers and applies the
+      # real drizzle migrations. ubuntu-latest ships a working Docker daemon, so
+      # this runs unchanged from local.
+      #
+      # The DOCKER_HOST shim in the package script resolves a Colima socket path
+      # that does not exist on the runner, so it falls through to the default
+      # daemon. TESTCONTAINERS_RYUK_DISABLED stays set, and the suite's own
+      # afterAll stops the container.
+      #
+      # DATABASE_URL is deliberately NOT set. test/setup.ts refuses to run
+      # against any non-localhost database, and unsetting it keeps that guard
+      # meaningful.
+      - name: Run integration tests
+        run: |
+          set -o pipefail
+          bun run test:integration 2>&1 | tee integration-run-${{ matrix.run }}.log
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-tests-run-${{ matrix.run }}
+          path: integration-run-${{ matrix.run }}.log
+          retention-days: 30
+
+  # This is what actually gets deployed, so a bundling failure must block the
+  # merge rather than surface at deploy time.
+  build-web:
+    name: Web build
+    runs-on: ubuntu-latest
+    needs: mergeability
+    if: always() && needs.mergeability.result != 'failure'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Build web bundle
+        run: |
+          set -o pipefail
+          bun run build:web 2>&1 | tee build-web.log
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-web-log
+          path: build-web.log
+          retention-days: 30
+
+      - name: Upload web bundle
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: apps/app/dist
+          retention-days: 7
+
+  # Single required status check. Branch protection points at this one job
+  # instead of the eight above, so adding or renaming a job never means editing
+  # the ruleset. A skipped or cancelled dependency is NOT a pass: only an
+  # explicit success is.
+  ci-passed:
+    name: CI passed
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - mergeability
+      - lint
+      - typecheck
+      - migration-drift
+      - unit
+      - integration
+      - build-web
+    steps:
+      - name: Verify every required job succeeded
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS"
+          failed=0
+          # mergeability legitimately reports 'skipped' in the merge queue.
+          # Everything else must be 'success'.
+          for job in lint typecheck migration-drift unit integration build-web; do
+            result=$(echo "$RESULTS" | jq -r --arg j "$job" '.[$j].result')
+            if [ "$result" != "success" ]; then
+              echo "::error::Job '${job}' did not succeed (result: ${result})."
+              failed=1
+            fi
+          done
+
+          merge_result=$(echo "$RESULTS" | jq -r '.mergeability.result')
+          if [ "$merge_result" != "success" ] && [ "$merge_result" != "skipped" ]; then
+            echo "::error::Mergeability check did not succeed (result: ${merge_result})."
+            failed=1
+          fi
+
+          if [ "$failed" -ne 0 ]; then
+            exit 1
+          fi
+          echo "All required checks passed."

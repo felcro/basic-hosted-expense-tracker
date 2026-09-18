@@ -1,0 +1,128 @@
+name: Deploy
+
+# Manual only. There is deliberately no `push: branches: [main]` trigger: the
+# point of this workflow is that merging to main no longer deploys by itself.
+#
+# IMPORTANT: this only holds once the Clever Cloud push webhook on this repo is
+# disabled (scripts/clever-autodeploy.sh). The Clever GitHub *integration*
+# cannot be disconnected once established, but the webhook that fires it is an
+# ordinary repository webhook we own, and disabling it stops the auto-deploy.
+# See docs/ci-cd-setup.md.
+#
+# Deploys with `clever restart --commit <sha>` rather than `clever deploy`.
+# Clever already holds this repo's code via the GitHub integration, so this
+# redeploys a commit it has rather than pushing a second copy to a different
+# git remote. That also avoids the question of whether a push-based deploy is
+# even accepted on a GitHub-linked app.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag or SHA to deploy. Defaults to main.'
+        required: false
+        default: main
+      confirm:
+        description: 'Type DEPLOY to confirm.'
+        required: true
+
+concurrency:
+  # Never two deploys at once, and never cancel one mid-flight. An interrupted
+  # deploy can leave the app in a part-deployed state.
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Clever Cloud
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Check confirmation
+        if: inputs.confirm != 'DEPLOY'
+        run: |
+          echo "::error::Confirmation failed. Type DEPLOY exactly to run this workflow."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          # Only needed to resolve `ref` to a full SHA; the deploy itself names
+          # a commit rather than pushing history.
+          fetch-depth: 1
+
+      # Deploying a commit that never passed CI defeats the branch protection.
+      # This reads the commit's check-run conclusions directly rather than
+      # trusting that it came from main.
+      - name: Verify the target commit passed CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(git rev-parse HEAD)
+          echo "Verifying CI status for ${sha}"
+          conclusion=$(gh api "repos/${{ github.repository }}/commits/${sha}/check-runs" \
+            --jq '[.check_runs[] | select(.name == "CI passed")] | first | .conclusion // "missing"')
+
+          if [ "$conclusion" != "success" ]; then
+            echo "::error::Commit ${sha} has no successful 'CI passed' check (found: ${conclusion}). Refusing to deploy."
+            exit 1
+          fi
+          echo "CI passed for ${sha}."
+
+      - uses: ./.github/actions/setup
+
+      - name: Install Clever Cloud CLI
+        run: bun add -g clever-tools
+
+      - name: Deploy
+        env:
+          CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
+          CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
+          CLEVER_APP_ID: ${{ secrets.CLEVER_APP_ID }}
+        run: |
+          if [ -z "$CLEVER_TOKEN" ] || [ -z "$CLEVER_SECRET" ] || [ -z "$CLEVER_APP_ID" ]; then
+            echo "::error::CLEVER_TOKEN, CLEVER_SECRET and CLEVER_APP_ID must all be set as repository secrets."
+            exit 1
+          fi
+          clever login --token "$CLEVER_TOKEN" --secret "$CLEVER_SECRET"
+
+          sha=$(git rev-parse HEAD)
+
+          # `restart --commit`, not `deploy`. Clever already has this repo's
+          # code through the GitHub integration, so it redeploys a commit it
+          # holds instead of pushing a second copy to another git remote. It
+          # also makes rolling back just a matter of naming an older SHA.
+          #
+          # --exit-on deploy-end makes the step wait for the deploy to finish
+          # and take its exit code from the result, so a failed deploy fails
+          # this job rather than reporting success the moment it is queued.
+          #
+          # set -o pipefail so `| tee` does not mask a non-zero exit: without
+          # it the pipeline reports tee's status and a failed deploy would pass.
+          set -o pipefail
+          clever restart \
+            --app "$CLEVER_APP_ID" \
+            --commit "$sha" \
+            --exit-on deploy-end 2>&1 | tee deploy.log
+
+      - name: Summarise
+        if: always()
+        run: |
+          {
+            echo "### Deploy"
+            echo ""
+            echo "- **Ref:** \`${{ inputs.ref }}\`"
+            echo "- **Commit:** \`$(git rev-parse HEAD)\`"
+            echo "- **Result:** ${{ job.status }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload deploy log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-log
+          path: deploy.log
+          retention-days: 30
+          if-no-files-found: ignore

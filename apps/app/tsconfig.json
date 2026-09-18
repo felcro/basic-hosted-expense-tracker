@@ -13,7 +13,8 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "nativewind-env.d.ts"
+    "nativewind-env.d.ts",
+    "bun-shim.d.ts"
   ],
   // gluestack-ui' v5s generated "creator" factory components (createCalendar,
   // createMenu, etc.) and Animated.createAnimatedComponent usages have

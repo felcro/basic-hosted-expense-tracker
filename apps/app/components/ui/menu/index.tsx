@@ -135,10 +135,12 @@ const Menu = React.forwardRef<React.ComponentRef<typeof UIMenu>, IMenuProps>(
   function Menu({ className, ...props }, ref) {
     return (
       <UIMenu
+        // Reanimated types withInitialValues' argument as transform-only, so
+        // the opacity this animation also starts from is not assignable.
         entering={ZoomIn.duration(150).withInitialValues({
           transform: [{ scale: 0.9 }],
           opacity: 0,
-        })}
+        } as Parameters<typeof ZoomIn.withInitialValues>[0])}
         exiting={FadeOut.duration(150)}
         ref={ref}
         className={menuStyle({

@@ -102,7 +102,6 @@ const AvatarImage = React.forwardRef<
       className={avatarImageStyle({
         class: className,
       })}
-      // @ts-expect-error - resizeMode is React Native specific
       resizeMode="cover"
     />
   )
