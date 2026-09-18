@@ -125,6 +125,38 @@ Dependabot's npm updater cannot write `bun.lock`, so its PRs fail
 branch and commit the lockfile. Catalog-pinned deps are not bumped by
 Dependabot at all: edit `workspaces.catalog` in the root `package.json`.
 
+### No merge queue on this repository (2.f)
+
+GitHub merge queues require an **organisation-owned** repository: public ones
+on any plan, private ones on GitHub Enterprise Cloud. This repo is public but
+owned by a personal account (`felcro`), which is outside both arms of that
+grant. There is no plan or setting that enables it; the API rejects the rule
+with `422 Validation Failed - Invalid rule 'merge_queue'` even when sent with
+no parameters at all.
+
+`setup-branch-protection.sh` detects this and applies every other rule rather
+than failing, so requirements 1, 2.c, 2.d and 2.e are all enforced today.
+
+What is lost without a queue: concurrent PRs are each tested against their own
+base rather than against the result of the PRs merging ahead of them, so two
+independently-green PRs can still break main together. Options:
+
+1. **Live without it.** With one developer, PRs rarely merge concurrently, and
+   this is the practical choice for now.
+2. **Enable "Require branches to be up to date before merging"** by setting
+   `strict_required_status_checks_policy` to `true` in the script. This forces
+   a PR to rebase onto the latest main and re-run CI before merging, which
+   catches semantic conflicts the way a queue does. Cost: every merge
+   invalidates the other open PRs, and each must rebase and re-run CI. Fine at
+   low volume, painful beyond a few concurrent PRs.
+3. **Move the repo to a free GitHub organisation.** Organisations cost nothing,
+   and a public repo in one gets merge queues. `merge-queue-bump.yml` and the
+   `merge_group` trigger in `ci.yml` are already written and would start
+   working; re-running `setup-branch-protection.sh` adds the rule automatically.
+
+`merge-queue-bump.yml` is kept for option 3. Until then it fails immediately
+with "not currently in the merge queue".
+
 ### Merge-queue bumping is a workaround
 
 GitHub's merge queue orders strictly by entry time and exposes no priority API.

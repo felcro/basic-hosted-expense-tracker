@@ -1,5 +1,11 @@
 name: Bump PR in merge queue
 
+# REQUIRES A MERGE QUEUE, which needs an ORGANISATION-owned repository (public
+# on any plan, private on GitHub Enterprise Cloud). This repo is owned by a
+# personal account, so it has no merge queue and this workflow will fail at the
+# first step with "PR #N is not currently in the merge queue". It is kept ready
+# for the day the repo moves to an organisation. See docs/ci-cd-setup.md.
+#
 # GitHub's merge queue has NO priority feature. Entries are ordered strictly by
 # the time they were added, and there is no API to reorder them.
 #
