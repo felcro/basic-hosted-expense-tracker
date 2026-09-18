@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@nkzw/eslint-plugin": "^2.0.0",
-    "@nkzw/oxlint-config": "^1.2.1",
+    "@nkzw/oxlint-config": "^2.0.1",
     "@swmansion/argent": "^0.25.1",
     "@types/bun": "latest",
     "eslint-plugin-no-only-tests": "^3.4.0",
