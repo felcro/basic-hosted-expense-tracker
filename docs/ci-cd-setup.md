@@ -1,16 +1,16 @@
 # CI/CD setup
 
-Phase 1: the core lane. Covers requirements 1, 2.a, 2.c, 2.d, 2.e, 2.f and 2.g.
+Phase 1: the core lane. Covers requirements 1, 2.a, 2.c, 2.d, 2.e and 2.g.
+Merge queues (2.f) are deliberately not set up: see "Deferred" at the end.
 E2E (2.b), issue automation, and security scanning are later phases.
 
 ## What runs, and when
 
-| Workflow                  | Trigger                   | Purpose                                         |
-| ------------------------- | ------------------------- | ----------------------------------------------- |
-| `ci.yml`                  | PR to `main`, merge queue | The gate. Everything below must pass to merge.  |
-| `deploy.yml`              | Manual only               | Deploys a chosen commit to Clever Cloud.        |
-| `merge-queue-bump.yml`    | Manual only               | Moves a PR to the front of the merge queue.     |
-| `nightly-flake-check.yml` | 02:00 UTC daily           | Unit + integration, 5x each, to surface flakes. |
+| Workflow                  | Trigger         | Purpose                                         |
+| ------------------------- | --------------- | ----------------------------------------------- |
+| `ci.yml`                  | PR to `main`    | The gate. Everything below must pass to merge.  |
+| `deploy.yml`              | Manual only     | Deploys a chosen commit to Clever Cloud.        |
+| `nightly-flake-check.yml` | 02:00 UTC daily | Unit + integration, 5x each, to surface flakes. |
 
 ### Jobs in `ci.yml`
 
@@ -41,7 +41,7 @@ DRY_RUN=1 ./scripts/setup-branch-protection.sh   # inspect first
 ```
 
 Blocks direct pushes to `main` (requirement 1), requires a PR, requires the
-`CI passed` check, and enables the merge queue (2.f).
+`CI passed` check.
 
 `bypass_actors` is empty, so this applies to you too. That is the point of
 requirement 1. Adding yourself as a bypass actor silently disables it.
@@ -125,45 +125,6 @@ Dependabot's npm updater cannot write `bun.lock`, so its PRs fail
 branch and commit the lockfile. Catalog-pinned deps are not bumped by
 Dependabot at all: edit `workspaces.catalog` in the root `package.json`.
 
-### No merge queue on this repository (2.f)
-
-GitHub merge queues require an **organisation-owned** repository: public ones
-on any plan, private ones on GitHub Enterprise Cloud. This repo is public but
-owned by a personal account (`felcro`), which is outside both arms of that
-grant. There is no plan or setting that enables it; the API rejects the rule
-with `422 Validation Failed - Invalid rule 'merge_queue'` even when sent with
-no parameters at all.
-
-`setup-branch-protection.sh` detects this and applies every other rule rather
-than failing, so requirements 1, 2.c, 2.d and 2.e are all enforced today.
-
-What is lost without a queue: concurrent PRs are each tested against their own
-base rather than against the result of the PRs merging ahead of them, so two
-independently-green PRs can still break main together. Options:
-
-1. **Live without it.** With one developer, PRs rarely merge concurrently, and
-   this is the practical choice for now.
-2. **Enable "Require branches to be up to date before merging"** by setting
-   `strict_required_status_checks_policy` to `true` in the script. This forces
-   a PR to rebase onto the latest main and re-run CI before merging, which
-   catches semantic conflicts the way a queue does. Cost: every merge
-   invalidates the other open PRs, and each must rebase and re-run CI. Fine at
-   low volume, painful beyond a few concurrent PRs.
-3. **Move the repo to a free GitHub organisation.** Organisations cost nothing,
-   and a public repo in one gets merge queues. `merge-queue-bump.yml` and the
-   `merge_group` trigger in `ci.yml` are already written and would start
-   working; re-running `setup-branch-protection.sh` adds the rule automatically.
-
-`merge-queue-bump.yml` is kept for option 3. Until then it fails immediately
-with "not currently in the merge queue".
-
-### Merge-queue bumping is a workaround
-
-GitHub's merge queue orders strictly by entry time and exposes no priority API.
-`merge-queue-bump.yml` dequeues everything ahead of the target and re-adds it
-behind. Each dequeued PR abandons its in-flight merge-queue CI run. Use it when
-something genuinely needs to jump the line.
-
 ## Where the logs are
 
 - **Per-job logs**: the Actions run page.
@@ -173,6 +134,53 @@ something genuinely needs to jump the line.
 - **Nightly flake results**: `nightly-<suite>-run-<n>` artifacts, plus a
   comment on a single reused `flaky-test` issue.
 - **Deploy logs**: `deploy-log` artifact, plus the Clever console.
+
+## Deferred: merge queue (2.f)
+
+Not implemented, by choice. GitHub merge queues require an **organisation-owned**
+repository (public ones on any plan, private ones on GitHub Enterprise Cloud).
+This repo is public but owned by a personal account, so the API rejects the rule
+outright with `422 Validation Failed - Invalid rule 'merge_queue'`, even when
+sent with no parameters at all.
+
+With a single developer, PRs rarely merge concurrently, so the queue earns
+little today. What it would buy: testing each PR against the result of the PRs
+merging ahead of it, so two independently-green PRs cannot break main together.
+
+To add it later, in increasing order of effort:
+
+1. **Set `strict_required_status_checks_policy` to `true`** in
+   `scripts/setup-branch-protection.sh`. Forces a PR to be up to date with main
+   before merging, which catches the same semantic conflicts. Cost: every merge
+   invalidates the other open PRs, each needing a rebase and a fresh CI run.
+2. **Move the repo to a GitHub organisation.** Free, and a public repo in one
+   gets merge queues. Then re-add to `setup-branch-protection.sh`:
+
+   ```json
+   {
+     "type": "merge_queue",
+     "parameters": {
+       "merge_method": "SQUASH",
+       "grouping_strategy": "ALLGREEN",
+       "max_entries_to_build": 5,
+       "min_entries_to_merge": 1,
+       "max_entries_to_merge": 5,
+       "min_entries_to_merge_wait_minutes": 0,
+       "check_response_timeout_minutes": 60
+     }
+   }
+   ```
+
+   `ci.yml` also needs the `merge_group:` trigger restored, and its jobs
+   tolerating a skipped `mergeability` (merge-queue entries are pre-rebased by
+   GitHub, so the conflict check does not run there). Both were removed when
+   the queue was dropped; see the commit that did so for the exact prior form.
+
+   A workflow to bump a PR up the queue also once existed at
+   `.github/workflows/merge-queue-bump.yml`, removed in the same commit.
+   GitHub's queue orders strictly by entry time and exposes no priority API, so
+   it worked by dequeuing everything ahead of the target and re-adding it
+   behind, at the cost of each dequeued PR abandoning its in-flight CI run.
 
 ## Still to come
 

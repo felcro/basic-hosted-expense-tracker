@@ -1,19 +1,17 @@
 name: CI
 
-# Runs on pull requests and on merge-queue entry. Not on push to main: main is
-# only ever reached through the queue, so a push-triggered run would duplicate
-# what the queue already proved.
+# Runs on pull requests only. Not on push to main: branch protection means main
+# is only ever reached by merging a PR whose CI already passed, so a
+# push-triggered run would just repeat it.
 on:
   pull_request:
     branches: [main]
-  merge_group:
 
 # One in-flight run per PR. Pushing three times in a minute cancels the first
-# two rather than running three full suites concurrently. Merge-queue runs are
-# never cancelled: cancelling one would dequeue the PR.
+# two rather than running three full suites concurrently.
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -24,9 +22,6 @@ jobs:
   mergeability:
     name: Mergeability
     runs-on: ubuntu-latest
-    # Merge-queue entries are already rebased onto main by GitHub, so there is
-    # nothing to check there.
-    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -64,10 +59,6 @@ jobs:
     name: Lint & format
     runs-on: ubuntu-latest
     needs: mergeability
-    # needs.<job>.result is 'skipped' in the merge queue, where mergeability
-    # does not run. always() plus an explicit failure test keeps the dependency
-    # without turning a legitimate skip into a block.
-    if: always() && needs.mergeability.result != 'failure'
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -83,7 +74,6 @@ jobs:
     name: Typecheck
     runs-on: ubuntu-latest
     needs: mergeability
-    if: always() && needs.mergeability.result != 'failure'
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -102,7 +92,6 @@ jobs:
     name: Migration drift
     runs-on: ubuntu-latest
     needs: mergeability
-    if: always() && needs.mergeability.result != 'failure'
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -139,7 +128,6 @@ jobs:
     name: Unit tests (run ${{ matrix.run }})
     runs-on: ubuntu-latest
     needs: mergeability
-    if: always() && needs.mergeability.result != 'failure'
     strategy:
       # Both runs always complete. Cancelling the second the moment the first
       # fails would hide whether the failure is deterministic or flaky, which is
@@ -173,7 +161,6 @@ jobs:
     name: Integration tests (run ${{ matrix.run }})
     runs-on: ubuntu-latest
     needs: mergeability
-    if: always() && needs.mergeability.result != 'failure'
     strategy:
       fail-fast: false
       matrix:
@@ -213,7 +200,6 @@ jobs:
     name: Web build
     runs-on: ubuntu-latest
     needs: mergeability
-    if: always() && needs.mergeability.result != 'failure'
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -262,21 +248,16 @@ jobs:
         run: |
           echo "$RESULTS"
           failed=0
-          # mergeability legitimately reports 'skipped' in the merge queue.
-          # Everything else must be 'success'.
-          for job in lint typecheck migration-drift unit integration build-web; do
+          # Every job must report 'success'. Anything else, including 'skipped'
+          # and 'cancelled', blocks the merge: a job that did not run has
+          # proved nothing.
+          for job in mergeability lint typecheck migration-drift unit integration build-web; do
             result=$(echo "$RESULTS" | jq -r --arg j "$job" '.[$j].result')
             if [ "$result" != "success" ]; then
               echo "::error::Job '${job}' did not succeed (result: ${result})."
               failed=1
             fi
           done
-
-          merge_result=$(echo "$RESULTS" | jq -r '.mergeability.result')
-          if [ "$merge_result" != "success" ] && [ "$merge_result" != "skipped" ]; then
-            echo "::error::Mergeability check did not succeed (result: ${merge_result})."
-            failed=1
-          fi
 
           if [ "$failed" -ne 0 ]; then
             exit 1
