@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 #
-# Applies the main-branch ruleset: no direct pushes, PR required, CI required,
-# merge queue enabled.
+# Applies the main-branch ruleset: no direct pushes, PR required, CI required.
 #
 # Branch protection is repository configuration, not code: it cannot live in a
 # workflow file. This script exists so the configuration is reviewable and
@@ -68,37 +67,10 @@ read -r -d '' PAYLOAD <<JSON || true
 }
 JSON
 
-# Merge queue (2.f) is only available on ORGANISATION-owned repositories:
-# public ones on any plan, private ones on GitHub Enterprise Cloud. A repo
-# owned by a personal account cannot have one at any plan or visibility, and
-# the API rejects the rule outright with:
-#
-#   422 Validation Failed - Invalid rule 'merge_queue'
-#
-# even for a bare { "type": "merge_queue" } with no parameters. So add the
-# rule only when the owner is an organisation, and otherwise apply everything
-# else rather than failing the whole ruleset.
-owner_type=$(gh api "repos/${REPO}" --jq '.owner.type')
-
-if [ "$owner_type" = "Organization" ]; then
-  echo "Owner is an organisation: including the merge queue rule."
-  PAYLOAD=$(echo "$PAYLOAD" | jq '.rules += [{
-    "type": "merge_queue",
-    "parameters": {
-      "merge_method": "SQUASH",
-      "grouping_strategy": "ALLGREEN",
-      "max_entries_to_build": 5,
-      "min_entries_to_merge": 1,
-      "max_entries_to_merge": 5,
-      "min_entries_to_merge_wait_minutes": 0,
-      "check_response_timeout_minutes": 60
-    }
-  }]')
-  MERGE_QUEUE_APPLIED=1
-else
-  echo "Owner is a ${owner_type} account: skipping the merge queue rule (unsupported)."
-  MERGE_QUEUE_APPLIED=0
-fi
+# No merge queue rule here. It requires an organisation-owned repository and
+# this one is owned by a personal account, so the API rejects the rule outright
+# (422 "Invalid rule 'merge_queue'"). See docs/ci-cd-setup.md if the repo ever
+# moves to an organisation.
 
 if [ "${DRY_RUN:-0}" = "1" ]; then
   echo "$PAYLOAD" | jq .
@@ -131,12 +103,6 @@ echo "Applied to ${REPO}:"
 echo "  - Direct pushes to main blocked (no bypass actors, including admins)"
 echo "  - Pull request required; resolved review threads required"
 echo "  - Required check: '${REQUIRED_CHECK}'"
-if [ "$MERGE_QUEUE_APPLIED" = "1" ]; then
-  echo "  - Merge queue enabled (squash, ALLGREEN grouping, up to 5 entries)"
-else
-  echo "  - Merge queue NOT enabled: needs an organisation-owned repository"
-  echo "    (requirement 2.f; see docs/ci-cd-setup.md for the options)"
-fi
 echo "  - Force-push and deletion of main blocked"
 echo "  - Auto-merge and delete-branch-on-merge enabled"
 echo
