@@ -54,22 +54,72 @@ jobs:
           fetch-depth: 1
 
       # Deploying a commit that never passed CI defeats the branch protection.
-      # This reads the commit's check-run conclusions directly rather than
-      # trusting that it came from main.
+      # This reads the commit's check-run conclusions rather than trusting that
+      # it came from main.
+      #
+      # CI runs on `pull_request`, which tests the PR HEAD commit. Merging then
+      # creates a NEW merge commit, and that commit carries no 'CI passed'
+      # check of its own, so checking it directly always reports "missing".
+      # When the target is a merge commit, resolve it back to the PR it came
+      # from and verify the head that CI actually tested.
       - name: Verify the target commit passed CI
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
         run: |
           sha=$(git rev-parse HEAD)
           echo "Verifying CI status for ${sha}"
-          conclusion=$(gh api "repos/${{ github.repository }}/commits/${sha}/check-runs" \
-            --jq '[.check_runs[] | select(.name == "CI passed")] | first | .conclusion // "missing"')
+
+          # Prints exactly one word. On an API error (unknown SHA) gh writes a
+          # JSON error body to stdout AND fails, so capture it and fall back to
+          # "missing" rather than letting that body reach the error message.
+          check_for() {
+            local out
+            if out=$(gh api "repos/${REPO}/commits/$1/check-runs" \
+              --jq '[.check_runs[] | select(.name == "CI passed")] | first | .conclusion // "missing"' \
+              2>/dev/null); then
+              case "$out" in
+                success | failure | neutral | cancelled | timed_out | action_required | skipped | stale | missing)
+                  echo "$out" ;;
+                *) echo missing ;;
+              esac
+            else
+              echo missing
+            fi
+          }
+
+          conclusion=$(check_for "$sha")
+          verified="$sha"
+
+          if [ "$conclusion" != "success" ]; then
+            echo "No 'CI passed' directly on ${sha}; checking the PR that produced it."
+            # Only a PR whose merge_commit_sha IS this commit counts. Without
+            # that guard the endpoint also returns PRs that merely contain the
+            # commit, which would let an unverified commit borrow an unrelated
+            # PR's green check.
+            pr_head=$(gh api "repos/${REPO}/commits/${sha}/pulls" \
+              --jq '[.[] | select(.merged_at != null and .merge_commit_sha == "'"$sha"'")] | first | .head.sha // empty' \
+              2>/dev/null || true)
+
+            # An API error (unknown SHA, for instance) puts a JSON error body
+            # in pr_head rather than a SHA, so require a bare 40-char hex.
+            case "$pr_head" in
+              *[!0-9a-f]* | "") pr_head="" ;;
+              *) [ "${#pr_head}" -eq 40 ] || pr_head="" ;;
+            esac
+
+            if [ -n "$pr_head" ]; then
+              echo "  merged from PR head ${pr_head}"
+              conclusion=$(check_for "$pr_head")
+              verified="$pr_head"
+            fi
+          fi
 
           if [ "$conclusion" != "success" ]; then
             echo "::error::Commit ${sha} has no successful 'CI passed' check (found: ${conclusion}). Refusing to deploy."
             exit 1
           fi
-          echo "CI passed for ${sha}."
+          echo "CI passed, verified on ${verified}."
 
       - uses: ./.github/actions/setup
 
