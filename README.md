@@ -5,6 +5,8 @@ A small expense tracker built as a learning project for a full-stack, cloud-host
 The web app is deployed on Clever Cloud and is live (sometimes) at:
 https://app-0a0cf65d-c6fa-4bb5-86e8-0df9c595b8dc.cleverapps.io
 
+Deploys are now manual via github actions, rather than on every push to `main`. See [CI/CD](#cicd).
+
 ## Tech stack
 
 This project exists to develop my skills with things I haven't used before, trying to implement best practices along the way:
@@ -105,16 +107,126 @@ bun run web          # Expo web dev server
 bun run ios          # native iOS (needs a development build)
 bun run android      # native Android
 bun run build:web    # export the web bundle + brotli precompress
-bun run lint         # oxfmt + oxlint
+bun run lint         # oxfmt --check + oxlint
+bun run typecheck    # tsc --noEmit across every package
+bun run test         # unit tests (shared, db, app)
+bun run test:integration  # integration tests (needs Docker)
 ```
+
+`bun run lint` checks formatting rather than rewriting it, so it behaves the same locally
+as in CI. Use `bun run lint:fix` to actually apply the formatting.
 
 Native points at the deployed API even in development. Kinde only accepts a plain-HTTP redirect URI on `localhost`, and a phone or emulator can't reach the Mac's localhost, so a local native login has no valid callback URL. The trade-off is that anything created while testing on a device is real data. A workaround for this is to replace the dev api url to the machine's LAN IP address.
 
 Env vars are documented per package in the respective `CLAUDE.md` files.
 
+## CI/CD
+
+Every change reaches `main` through a pull request. Direct pushes are blocked by a
+repository ruleset, with no bypass for admins, so the gate applies to me too.
+
+### On every pull request
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs a conflict check first, on
+its own. If the branch can't merge cleanly there's no point spending runner minutes on
+the rest, so everything else waits on that result. Once it passes, the remaining jobs
+run in parallel:
+
+| Job               | What it does                                                  |
+| ----------------- | ------------------------------------------------------------- |
+| Mergeability      | Conflicts with `main`, checked before anything expensive runs |
+| Lint & format     | `oxfmt --check` + `oxlint`                                    |
+| Typecheck         | `tsc --noEmit` in all four packages                           |
+| Migration drift   | Schema and committed Drizzle migrations still agree           |
+| Unit tests        | 134 tests, run twice                                          |
+| Integration tests | 7 tests against a real Postgres, run twice                    |
+| Web build         | The bundle that actually gets deployed                        |
+
+A single `CI passed` job aggregates the rest, and that's the only check branch protection
+names. Adding a job later means adding it to that one list rather than editing repository
+settings. It requires every job to report `success`: a skipped or cancelled job is not a
+pass, which is the usual way a required check quietly stops meaning anything.
+
+**Tests run twice** because a suite that passes once has only proved it can pass once.
+Running the same commit twice catches order-dependence and shared-state bugs cheaply.
+Five runs a night would catch more, which is what the nightly job is for, but doing that
+on every push would triple CI time for little extra signal.
+
+**Integration tests get a real database**, not a mock. `apps/server/test/setup.ts` starts
+a throwaway `postgres:16` container via Testcontainers and applies the real migrations, so
+the same code runs locally and in CI unchanged. It refuses to run against anything that
+isn't localhost, because the tests truncate tables and Bun loads `.env` before the
+harness does.
+
+**Migration drift** was the check I nearly didn't write. Nothing else notices if you edit
+a schema and forget `bun run generate`: CI goes green and the production database is
+missing a column. The job runs `drizzle-kit generate` and fails if git is dirty
+afterwards.
+
+### Nightly
+
+[`.github/workflows/nightly-flake-check.yml`](.github/workflows/nightly-flake-check.yml)
+runs both suites five times each at 02:00 UTC. A partial failure across identical runs on
+an unchanged commit is the signature of a flaky test rather than a regression. It files a
+single reusable `flaky-test` issue rather than one per night, with each run's log attached.
+
+### Deploying
+
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) is manual only, and
+deliberately so. Clever Cloud deploys on every push by default, which meant `main` and
+production were the same thing whether or not I was ready. The Clever GitHub integration
+can't be disconnected once it's set up, but the thing that actually triggers a deploy is
+an ordinary repository webhook, and that can be switched off:
+
+```bash
+./scripts/clever-autodeploy.sh status
+./scripts/clever-autodeploy.sh disable   # merging to main no longer deploys
+./scripts/clever-autodeploy.sh enable    # reversible
+```
+
+Deploys now happen by dispatching the workflow with a ref and typing `DEPLOY` to confirm.
+It refuses any commit without a successful `CI passed` check, so a green merge is a
+prerequisite rather than an assumption. Rolling back is the same workflow with an older ref.
+
+It uses `clever restart --commit <sha>` rather than pushing code. The app's deployment
+source is this GitHub repository, so Clever fetches the commit itself and there's no
+second copy of the history anywhere.
+
+### Logs and artifacts
+
+Test output, build logs and the web bundle upload as artifacts on every run, kept 30 days,
+so a red check comes with the output that explains it rather than just a red tick.
+
+### Set up from scratch
+
+Branch protection is repository configuration and can't live in a workflow file, so it's
+a script instead:
+
+```bash
+DRY_RUN=1 ./scripts/setup-branch-protection.sh   # print the payload
+./scripts/setup-branch-protection.sh             # apply it
+```
+
+Full setup notes, including the bits that need doing by hand, are in
+[docs/ci-cd-setup.md](docs/ci-cd-setup.md).
+
+### Not done yet
+
+**End-to-end tests aren't wired into CI.** There's one placeholder Argent flow and nothing
+real behind it. The plan is a smoke subset on every PR and the full suite nightly at 2x,
+with native builds through EAS. Wiring the pipeline before the tests exist would produce a
+green check that proves nothing.
+
+**No merge queue.** GitHub merge queues need an organisation-owned repository, and this one
+is owned by a personal account, so the API rejects the rule outright. With one developer
+merging one PR at a time it costs little. Two independently-green PRs can still break
+`main` together; if that starts happening, the fix is either requiring branches to be up to
+date before merging, or moving the repo to an organisation.
+
 ## Still to do
 
-- **Tests.** There's no test suite yet, anywhere. This is the biggest gap in the project and the thing I'd want to fix first: the auth middleware's token verification and the SSE subscriber lifecycle in particular are exactly the kind of logic that should not be verified by hand.
+- **Test coverage.** There's a suite now (141 tests, run on every PR), but it's thin in the places that matter most. The auth middleware's token verification and the SSE subscriber lifecycle are still unverified, and those are exactly the kind of logic that shouldn't be checked by hand. `apps/server` also has no unit tests, only integration ones.
+- **End-to-end tests.** One placeholder Argent flow, nothing real yet. See CI/CD above.
 - **Native bundle size.** The web bundle is now compressed and lazily loaded, but the native bundle hasn't had the same treatment. Needs profiling before guessing at fixes.
 - **Test on a real iPhone.** Everything native so far has been a simulator, which papers over real-device issues like actual secure-store behaviour, background/foreground token refresh, and genuine network conditions.
 
@@ -124,9 +236,9 @@ I have tried to avoid using AI as much as possible whilst developing this app, s
 
 That being said, there are 3 edge cases where I relaxed this rule:
 
-1. Generating boilerplate code I knew would take me a while to write but I know how to (e.g. creating React context).
+1. Generating boilerplate code I knew would take me a while to write but I know how to (e.g. creating React context, test files, or code documentation).
 2. Refactoring code I'd already written into different areas (e.g. splitting out React components I'd written into more generic functions - similar to the boilerplate thing really...)
-3. When I was genuinely stuck with new concepts (e.g. auth, routing, design for mobile). This project has been a steep learning curve for me, and things like auth and hosting are tricky to get working the first time when you don't know what needs doing!
+3. When I was genuinely stuck with new concepts (auth, routing, design for mobile, github CI/CD). This project has been a steep learning curve for me, and things like auth and hosting are tricky to get working the first time when you don't know what needs doing!
 
 I've found this approach to be the most beneficial, treating AI throughout this project as more like a coach. If I get AI to write all the code for me, how can I ever know what is right or wrong in the future?
 
