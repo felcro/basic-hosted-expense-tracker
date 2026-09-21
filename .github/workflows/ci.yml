@@ -23,7 +23,7 @@ jobs:
     name: Mergeability
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: mergeability
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       # `bun run lint` is `oxfmt --check && oxlint`. The --check matters: bare
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: mergeability
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       # Per-package rather than a root `tsc`: each package has its own
@@ -93,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: mergeability
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       # Validates migration-file consistency (ordering, collisions, corrupt
@@ -136,7 +136,7 @@ jobs:
       matrix:
         run: [1, 2]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       # Covers packages/shared, packages/db and apps/app (3 jest-expo projects:
@@ -151,7 +151,7 @@ jobs:
 
       - name: Upload logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: unit-tests-run-${{ matrix.run }}
           path: unit-run-${{ matrix.run }}.log
@@ -166,7 +166,7 @@ jobs:
       matrix:
         run: [1, 2]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       # test/setup.ts starts postgres:16 through Testcontainers and applies the
@@ -188,7 +188,7 @@ jobs:
 
       - name: Upload logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: integration-tests-run-${{ matrix.run }}
           path: integration-run-${{ matrix.run }}.log
@@ -201,7 +201,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: mergeability
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       - name: Build web bundle
@@ -211,7 +211,7 @@ jobs:
 
       - name: Upload build log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-web-log
           path: build-web.log
@@ -219,7 +219,7 @@ jobs:
 
       - name: Upload web bundle
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-dist
           path: apps/app/dist
